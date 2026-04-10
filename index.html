@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GGG MASTER V2.9 - GLOBAL PRE-LAUNCH</title>
+    <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
+    <style>
+        :root { --gold:#f1c40f; --dark:#0f172a; --card:#1e293b; --green:#2ecc71; --red:#ff4757; --blue:#3498db; }
+        body { background: var(--dark); color: white; text-align: center; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 420px; margin: auto; }
+        .card { background: var(--card); padding: 20px; border-radius: 18px; margin-bottom: 15px; border: 1px solid rgba(241,196,15,0.2); box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+        b { color: var(--gold); font-size: 24px; }
+        button { width: 100%; padding: 14px; margin-top: 10px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 15px; }
+        button:active { transform: scale(0.96); }
+        .btn-bet { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+        .status-win { color: var(--green); font-weight: bold; }
+        .status-lose { color: var(--red); font-weight: bold; }
+        .status-waiting { color: var(--gold); animation: blink 1s infinite; font-weight: bold; }
+        .time-label { color: #94a3b8; font-size: 11px; display: block; text-align: left; }
+        @keyframes blink { 50% { opacity: 0.4; } }
+        input { width: 85%; padding: 12px; margin: 10px; border-radius: 10px; border: 1px solid #334155; text-align: center; font-size: 18px; background: #0f172a; color: white; }
+        .ref-box { background: #000; padding: 10px; border-radius: 8px; font-size: 11px; color: var(--gold); word-break: break-all; margin-top: 10px; border: 1px solid #334155; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="color:var(--gold); letter-spacing: 2px;">🎰 GGG MASTER V2.9</h2>
+    <div id="wallet" style="margin-bottom: 20px;"></div>
+
+    <div class="card">
+        <div style="margin-bottom:10px;">PENDING: <b id="pending">0.000</b> TON</div>
+        <div style="font-size: 13px; opacity: 0.8;">REFERRAL: <span id="ref" style="color:var(--gold); font-weight:bold;">0.000</span> TON</div>
+        
+        <input type="number" id="amount" value="0.1" step="0.1" min="0.05">
+        
+        <div style="display:flex; gap:10px;">
+            <button id="lowBtn" style="background:var(--gold); color:black" onclick="setSide(true)">LOW (Even)</button>
+            <button id="highBtn" style="background:#334155; color:white" onclick="setSide(false)">HIGH (Odd)</button>
+        </div>
+        
+        <button class="btn-bet" onclick="placeBet()">PLACE BET</button>
+        
+        <div style="display:flex; gap:10px;">
+            <button style="background:var(--blue); color:white;" onclick="claimWin()">CLAIM WIN</button>
+            <button style="background:#475569; color:white;" onclick="withdrawRef()">REF WITHDRAW</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h4 style="margin:0; color:var(--gold);">🔗 INVITE FRIENDS (10%)</h4>
+        <div id="refLink" class="ref-box">Connect wallet to get link...</div>
+        <button id="copyBtn" style="background:var(--gold); color:black; padding:8px; display:none;" onclick="copyLink()">COPY INVITE LINK</button>
+    </div>
+
+    <div class="card">
+        <h4 style="margin:0; color:var(--gold); border-bottom: 1px solid #334155; padding-bottom: 8px;">🕒 SESSION HISTORY</h4>
+        <div id="historyList">
+            <div style="padding: 20px; opacity: 0.5;">No bets in this session.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const CONTRACT_ADDR = "EQCvX-jYteyWju6LGfig1MWEGjU9PVBxDErJBdd8LEzVRxiI";
+    const API = "https://toncenter.com/api/v2";
+    const tonweb = new TonWeb();
+    let userAddress = null;
+    let isSideLow = true;
+    let lastKnownPending = 0;
+    let lastKnownRef = 0;
+    let gameHistory = [];
+
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: "https://phyothetnaing985.github.io/ton-odd-even-game-live/tonconnect-manifest.json",
+        buttonRootId: "wallet"
+    });
+
+    tonConnectUI.onStatusChange(w => {
+        if (w) {
+            userAddress = w.account.address;
+            updateRefUI();
+            loadData();
+        }
+    });
+
+    function updateRefUI() {
+        if (!userAddress) return;
+        const link = window.location.origin + window.location.pathname + "?ref=" + userAddress;
+        document.getElementById("refLink").innerText = link;
+        document.getElementById("copyBtn").style.display = "block";
+    }
+
+    function copyLink() {
+        const text = document.getElementById("refLink").innerText;
+        navigator.clipboard.writeText(text);
+        const btn = document.getElementById("copyBtn");
+        btn.innerText = "COPIED ✅";
+        setTimeout(() => { btn.innerText = "COPY INVITE LINK"; }, 2000);
+    }
+
+    async function fetchGetter(method) {
+        if (!userAddress) return null;
+        try {
+            const addr = new TonWeb.utils.Address(userAddress);
+            const cell = new TonWeb.boc.Cell();
+            cell.bits.writeAddress(addr);
+            const b64 = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
+            const r = await fetch(`${API}/runGetMethod`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ "address": CONTRACT_ADDR, "method": method, "stack": [["tvm.Slice", b64]] })
+            });
+            const d = await r.json();
+            return d.result?.stack?.[0]?.[1] ? TonWeb.utils.fromNano(BigInt(d.result.stack[0][1]).toString()) : "0";
+        } catch(e) { return null; }
+    }
+
+    async function loadData() {
+        const p = await fetchGetter("pendingWin");
+        const r = await fetchGetter("referralBalance");
+        
+        // Flicker Protection: null မဟုတ်မှသာ update လုပ်မယ်
+        if (p !== null) {
+            lastKnownPending = parseFloat(p);
+            document.getElementById('pending').innerText = lastKnownPending.toFixed(3);
+        }
+        if (r !== null) {
+            lastKnownRef = parseFloat(r);
+            document.getElementById('ref').innerText = lastKnownRef.toFixed(3);
+        }
+    }
+
+    function renderHistory() {
+        const el = document.getElementById("historyList");
+        if (gameHistory.length === 0) return;
+        el.innerHTML = gameHistory.slice().reverse().map(g => `
+            <div class="history-item">
+                <div><span class="time-label">${g.time}</span><span>${g.amount} TON</span></div>
+                <span class="${g.statusClass}">${g.status}</span>
+            </div>
+        `).join("");
+    }
+
+    async function placeBet() {
+        if (!userAddress) return alert("Please connect wallet!");
+        const val = document.getElementById('amount').value;
+        const betAmount = parseFloat(val).toFixed(2);
+        const betId = Date.now();
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const beforePending = lastKnownPending;
+
+        try {
+            const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.05"));
+            const cell = new TonWeb.boc.Cell();
+            cell.bits.writeUint(0xAAAABBBB, 32);
+            cell.bits.writeBit(isSideLow);
+            
+            const params = new URLSearchParams(window.location.search);
+            const ref = params.get('ref');
+            if (ref) {
+                try { cell.bits.writeAddress(new TonWeb.utils.Address(ref)); } 
+                catch(e) { cell.bits.writeAddress(null); }
+            } else {
+                cell.bits.writeAddress(null);
+            }
+
+            const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
+            const gameEntry = { id: betId, time: timeStr, amount: betAmount, status: "WAITING...", statusClass: "status-waiting" };
+            gameHistory.push(gameEntry);
+            renderHistory();
+
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now() / 1000) + 300,
+                messages: [{ address: CONTRACT_ADDR, amount: total.toString(), payload: payload }]
+            });
+
+            setTimeout(async () => {
+                await loadData();
+                if (lastKnownPending > beforePending) {
+                    gameEntry.status = "WIN 🟢";
+                    gameEntry.statusClass = "status-win";
+                } else {
+                    gameEntry.status = "LOSE 🔴";
+                    gameEntry.statusClass = "status-lose";
+                }
+                renderHistory();
+            }, 10000);
+        } catch (e) {
+            gameHistory = gameHistory.filter(g => g.id !== betId);
+            renderHistory();
+        }
+    }
+
+    function setSide(s) {
+        isSideLow = s;
+        document.getElementById('lowBtn').style.background = s ? 'var(--gold)' : '#334155';
+        document.getElementById('lowBtn').style.color = s ? 'black' : 'white';
+        document.getElementById('highBtn').style.background = s ? '#334155' : 'var(--gold)';
+        document.getElementById('highBtn').style.color = s ? 'white' : 'black';
+    }
+
+    async function claimWin() {
+        const cell = new TonWeb.boc.Cell();
+        cell.bits.writeUint(0, 32); cell.bits.writeString("Claim");
+        await tonConnectUI.sendTransaction({
+            validUntil: Math.floor(Date.now() / 1000) + 300,
+            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
+        });
+    }
+
+    async function withdrawRef() {
+        const cell = new TonWeb.boc.Cell();
+        cell.bits.writeUint(0, 32); cell.bits.writeString("WithdrawRef");
+        await tonConnectUI.sendTransaction({
+            validUntil: Math.floor(Date.now() / 1000) + 300,
+            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
+        });
+    }
+
+    setInterval(loadData, 15000);
+</script>
+</body>
+</html>
