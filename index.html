@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V3.0 - ELITE PRE-LAUNCH</title>
+    <title>GGG MASTER V3.1 - GOLDEN LEGACY</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -53,7 +53,7 @@
         .nav-item i { font-size: 20px; }
 
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; padding:20px; }
-        .modal-content { background: var(--card); padding: 25px; border-radius: 25px; border: 1px solid var(--accent); max-width: 400px; text-align: left; }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 25px; border: 1px solid var(--accent); max-width: 400px; text-align: left; max-height: 80vh; overflow-y: auto; }
 
         .status-win { color: var(--green); font-weight: bold; }
         .status-lose { color: #ff4757; font-weight: bold; }
@@ -68,19 +68,23 @@
 
 <div id="info-modal" class="modal">
     <div class="modal-content">
-        <h3 style="color:var(--accent); text-align:center;">TRUST PROTOCOL</h3>
-        <p style="font-size: 13px; line-height: 1.6; opacity: 0.9;">
-            <b>1. Fair Play:</b> All outcomes are determined by on-chain hash entropy. Impossible to manipulate.<br><br>
-            <b>2. Non-Custodial:</b> Your funds are locked in the GGG MASTER Smart Contract until you claim them.<br><br>
-            <b>3. Rule:</b> Low (1-49), High (50-98). 99-100 are House Edge/Refund events. Winnings are 1.85x.
-        </p>
-        <button class="btn-main" style="background:var(--accent); color:black;" onclick="closeModal()">I UNDERSTAND</button>
+        <h3 style="color:var(--accent); text-align:center;">GGG MASTER PROTOCOL</h3>
+        <div style="font-size: 13px; line-height: 1.6; opacity: 0.9;">
+            <p><b>🎮 HOW TO PLAY:</b> Select your stake using the slider. Choose <b>LOW (1-49)</b> or <b>HIGH (50-98)</b>. If the on-chain result matches your choice, you win!</p>
+            <p><b>💰 REWARD SYSTEM:</b> Winning bets grant a <b>1.85x</b> payout. All payouts are secured by the Smart Contract.</p>
+            <p><b>🔗 REFERRAL SYSTEM:</b> Share your link and earn <b>10% instant commission</b> from every winning bet made by your referrals. Create your own passive income stream!</p>
+            <p><b>🛡️ SECURITY & FAIRNESS:</b> Decentralized on TON Blockchain. Outcomes are determined by cryptographic hashes, making it 100% tamper-proof and transparent.</p>
+            <p><b>🧠 STRATEGY:</b> Play with a clear mind. Analyze the history, manage your bankroll wisely, and create your own financial path through the power of GGG Protocol.</p>
+        </div>
+        <button class="btn-main" style="background:var(--accent); color:black; margin-top:15px;" onclick="closeModal()">I UNDERSTAND</button>
     </div>
 </div>
 
 <div class="header">
     <div id="wallet"></div>
-    <div onclick="toggleMode()" style="cursor:pointer; font-size: 20px; color: var(--accent);"><i class="fas fa-moon" id="theme-icon"></i></div>
+    <div onclick="toggleMode()" style="cursor:pointer; font-size: 20px; color: var(--accent); padding: 5px;">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </div>
 </div>
 
 <div id="lobby-screen" class="screen active-screen">
@@ -92,8 +96,8 @@
                 <div style="font-size:11px; color:var(--accent);">Win up to 1.85x</div>
             </div>
         </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-            <i class="far fa-file-alt" style="font-size:22px; color:var(--accent); cursor:pointer;" onclick="openModal()"></i>
+        <div style="display:flex; align-items:center; gap:15px;">
+            <i class="far fa-file-alt" style="font-size:24px; color:var(--accent); cursor:pointer;" onclick="openModal()"></i>
             <button onclick="showScreen('play-screen')" style="background:var(--green); border:none; padding:10px 20px; border-radius:10px; color:white; font-weight:bold; cursor:pointer;">PLAY</button>
         </div>
     </div>
@@ -173,7 +177,6 @@
     let gameHistory = [];
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        // အောက်က Link ကို goldengameglobal အကောင့်အသစ်အတွက် ပြင်ဆင်လိုက်ပါပြီ
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
         buttonRootId: "wallet"
     });
@@ -197,8 +200,11 @@
     function toggleMode() {
         document.body.classList.toggle('light-mode');
         const icon = document.getElementById('theme-icon');
-        icon.classList.toggle('fa-moon');
-        icon.classList.toggle('fa-sun');
+        if(icon.classList.contains('fa-moon')) {
+            icon.classList.replace('fa-moon', 'fa-sun');
+        } else {
+            icon.classList.replace('fa-sun', 'fa-moon');
+        }
     }
 
     function openModal() { document.getElementById('info-modal').style.display = 'flex'; }
