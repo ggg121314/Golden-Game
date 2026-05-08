@@ -3,30 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V6.1 - GOLDEN LEGACY</title>
+    <title>GGG MASTER V6.1 - GOLDEN PRO</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0b0e11; --card: #161b22; --accent: #f1c40f; --blue: #3498db; --green: #2ecc71; --text: #eaecef; --nav: #161b22; --btn: #2b3139; --glass: rgba(255, 255, 255, 0.05); }
-        .light-mode { --bg: #f5f7f9; --card: #ffffff; --accent: #d4af37; --blue: #2980b9; --green: #27ae60; --text: #1e2329; --nav: #ffffff; --btn: #e4e6eb; --glass: rgba(0, 0, 0, 0.05); }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma, sans-serif; padding-bottom: 80px; transition: 0.3s; overflow-x: hidden; }
+        :root { --bg: #0b0e11; --card: #161b22; --accent: #f1c40f; --green: #2ecc71; --blue: #3498db; --text: #eaecef; --nav: #161b22; --btn: #2b3139; --glass: rgba(255, 255, 255, 0.05); }
+        .light-mode { --bg: #f5f7f9; --card: #ffffff; --accent: #d4af37; --green: #27ae60; --blue: #2980b9; --text: #1e2329; --nav: #ffffff; --btn: #e4e6eb; --glass: rgba(0, 0, 0, 0.05); }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; transition: 0.3s; overflow-x: hidden; }
         .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: url('https://i.ibb.co/FbrzsJ9J/Screenshot-2026-04-10-17-14-06-636.jpg') center/cover no-repeat; opacity: 0.15; }
         .header { display: flex; justify-content: space-between; padding: 15px; background: var(--card); align-items: center; border-bottom: 1px solid var(--glass); position: sticky; top: 0; z-index: 1000; }
         .screen { display: none; flex-direction: column; align-items: center; padding: 15px; width: 100%; box-sizing: border-box; animation: fadeIn 0.4s; }
         .active-screen { display: flex; }
+        .visual-area { width: 100%; max-width: 400px; height: 180px; border-radius: 20px; overflow: hidden; margin-bottom: 15px; border: 2px solid var(--accent); }
+        .game-bg-img { width: 100%; height: 100%; object-fit: cover; }
         .control-panel { background: var(--card); width: 100%; max-width: 400px; padding: 20px; border-radius: 25px; border: 1px solid var(--glass); box-sizing: border-box; }
-        .visual-area { width: 100%; border-radius: 15px; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--accent); }
         .stat-item-blue { background: rgba(52, 152, 219, 0.15); padding: 10px; border-radius: 12px; border: 1px solid var(--blue); text-align: center; }
         .stat-item-blue b { color: var(--blue); font-size: 16px; }
-        .btn-green { background: var(--green) !important; color: white !important; font-weight: bold; border: none; border-radius: 10px; padding: 10px; cursor: pointer; }
+        .btn-green { width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--green); color: white; font-weight: bold; cursor: pointer; }
+        .bet-slider { width: 100%; height: 8px; border-radius: 5px; background: #334155; outline: none; -webkit-appearance: none; accent-color: var(--accent); }
+        .side-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
         .side-btn { padding: 12px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; font-weight: bold; cursor: pointer; }
         .side-btn.active { background: var(--accent); color: black; border-color: var(--accent); }
-        .bonus-box-blue { background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); transition: 0.3s; }
-        .bonus-ready { border: 2px solid var(--green) !important; box-shadow: 0 0 10px var(--green); }
+        .bonus-box { background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); transition: 0.3s; }
+        .bonus-box.eligible { border: 2px solid var(--green); box-shadow: 0 0 10px var(--green); }
         .footer { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); }
         .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #848e9c; font-size: 11px; cursor: pointer; }
         .nav-item.active { color: var(--accent); }
+        .history-table { width: 100%; max-width: 400px; border-collapse: collapse; font-size: 12px; margin-top: 20px; background: var(--card); border-radius: 15px; overflow: hidden; }
+        .history-table td { padding: 12px; text-align: center; border-top: 1px solid var(--glass); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -38,70 +43,82 @@
 </div>
 
 <div id="lobby-screen" class="screen active-screen">
+    <div class="visual-area" style="height: 200px;">
+        <img src="https://i.ibb.co/HfV9cGL0/IMG-20260407-222820.png" class="game-bg-img">
+    </div>
     <div class="control-panel" style="text-align: center;">
-        <img src="https://i.ibb.co/HfV9cGL0/IMG-20260407-222820.png" style="width:100%; border-radius:15px; margin-bottom:15px;">
         <h2 style="margin: 0; color: var(--accent);">GOLDEN LOW-HIGH</h2>
-        <button class="btn-green" style="width:100%; padding:15px; margin-top:15px; font-size:18px;" onclick="showScreen('play-screen')">PLAY NOW</button>
+        <p style="font-size: 12px; opacity: 0.7;">Fair Play & High Rewards on TON</p>
+        <button class="btn-green" style="font-size:16px; padding:15px;" onclick="showScreen('play-screen')">PLAY NOW</button>
     </div>
 </div>
 
 <div id="play-screen" class="screen">
-    <div class="control-panel">
-        <div class="visual-area">
-            <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" style="width:100%; display:block;">
-        </div>
-        <div style="font-size:28px; font-weight:900; text-align:center; color:var(--accent); margin-bottom:10px;"><span id="display-amt">0.10</span> <small>TON</small></div>
-        <input type="range" min="0.1" max="2.0" step="0.1" value="0.1" style="width:100%; accent-color:var(--accent);" id="amount-slider" oninput="updateBetUI(this.value)">
-        
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:15px 0;">
-            <div class="stat-item-blue"><span>PENDING</span><br><b id="pending">0.000</b></div>
-            <div class="stat-item-blue"><span>REF (5%)</span><br><b id="ref-bal">0.000</b></div>
-        </div>
-        
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
-            <button onclick="claimWin()" class="btn-green">CLAIM WIN</button>
-            <button onclick="withdrawRef()" class="btn-green">CLAIM REF</button>
-        </div>
+    <div class="visual-area">
+        <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-bg-img">
+    </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px;">
+    <div class="control-panel">
+        <div style="font-size:28px; font-weight:900; text-align:center; color:var(--accent);"><span id="display-amt">0.10</span> <small>TON</small></div>
+        <input type="range" min="0.1" max="2.0" step="0.1" value="0.1" class="bet-slider" id="amount-slider" oninput="updateBetUI(this.value)">
+        
+        <div class="side-btns">
             <button id="lowBtn" class="side-btn active" onclick="setSide(true)">LOW (1-49)</button>
             <button id="highBtn" class="side-btn" onclick="setSide(false)">HIGH (50-98)</button>
         </div>
-        <button class="btn-green" style="width:100%; padding:15px; font-size:16px;" onclick="placeBet()">PLACE BET (0.03 Fee)</button>
+
+        <button class="btn-green" style="height:55px; font-size:18px;" onclick="placeBet()">PLACE BET</button>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
+            <div class="stat-item-blue"><span>PENDING WIN</span><br><b id="pending">0.00</b></div>
+            <button onclick="claimWin()" class="btn-green" style="background:var(--green);">CLAIM WIN</button>
+        </div>
+        <div style="text-align:center; font-size:10px; margin-top:10px; opacity:0.6;">Est. Payout: <span id="est-payout">0.185</span> | Gas: 0.03 TON</div>
     </div>
+
+    <table class="history-table">
+        <tbody id="historyList"><tr><td style="padding:20px; opacity:0.5;">History Loading...</td></tr></tbody>
+    </table>
 </div>
 
 <div id="invite-screen" class="screen">
     <div class="control-panel" style="text-align:center;">
-        <h3 style="color:var(--accent);">REWARD EMPIRE</h3>
-        <div id="refLink" style="font-size:10px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Connect wallet</div>
-        <button id="copyBtn" onclick="copyLink()" class="btn-green" style="width:80%; background:var(--accent)!important; color:black!important;">COPY LINK</button>
+        <i class="fas fa-users" style="font-size:40px; color:var(--accent);"></i>
+        <h3 style="margin:10px 0;">REFERRAL SYSTEM</h3>
+        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Connect wallet</div>
+        <button id="copyBtn" onclick="copyLink()" class="btn-green" style="background:var(--accent); color:black;">COPY LINK</button>
         
-        <div style="margin-top:15px; font-size:14px;">Total Referrals: <b id="ref-count" style="color:var(--blue);">0</b></div>
-
-        <h4 style="margin:20px 0 5px 0; color:var(--blue);">🎁 BONUS SYSTEM</h4>
-        <p style="font-size:10px; opacity:0.8; margin-bottom:15px;">Invite friends and reach milestones to unlock extra TON bonuses! When a box turns Green, you can claim your reward.</p>
-        
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;" id="bonus-container">
-            <div class="bonus-box-blue" id="tier1"><b>Tier 1</b><br>10 Refs<br><small>0.3 TON</small></div>
-            <div class="bonus-box-blue" id="tier2"><b>Tier 2</b><br>30 Refs<br><small>0.6 TON</small></div>
-            <div class="bonus-box-blue" id="tier3"><b>Tier 3</b><br>50 Refs<br><small>0.6 TON</small></div>
-            <div class="bonus-box-blue" id="tier4"><b>Tier 4</b><br>100 Refs<br><small>1.5 TON</small></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
+            <div class="stat-item-blue"><span>INVITED</span><br><b id="ref-count">0</b></div>
+            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.00</b></div>
         </div>
-        <button onclick="claimBonus()" class="btn-green" style="width:100%; margin-top:15px;">CLAIM BONUS</button>
+        <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px;">CLAIM REFERRAL</button>
+
+        <div style="text-align:left; background:rgba(52,152,219,0.1); padding:15px; border-radius:15px; margin-top:20px; border:1px solid var(--blue);">
+            <h4 style="margin:0 0 5px 0; color:var(--blue);"><i class="fas fa-info-circle"></i> Bonus Rules</h4>
+            <p style="font-size:11px; margin:0; opacity:0.8; line-height:1.4;">Get extra TON by reaching referral milestones. Once you reach 10, 30, 50 or 100 active invites, the tier box will glow green, and you can claim your VIP Bonus!</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
+            <div class="bonus-box" id="tier1"><b>10 Refs</b><br><small>0.3 TON</small></div>
+            <div class="bonus-box" id="tier2"><b>30 Refs</b><br><small>0.6 TON</small></div>
+            <div class="bonus-box" id="tier3"><b>50 Refs</b><br><small>0.6 TON</small></div>
+            <div class="bonus-box" id="tier4"><b>100 Refs</b><br><small>1.5 TON</small></div>
+        </div>
+        <button onclick="claimBonus()" class="btn-green" style="margin-top:15px; background:var(--blue);">CLAIM VIP BONUS</button>
     </div>
 </div>
 
 <div class="footer">
     <div class="nav-item active" onclick="showScreen('lobby-screen')"><i class="fas fa-home"></i>Lobby</div>
     <div class="nav-item" onclick="showScreen('play-screen')"><i class="fas fa-gamepad"></i>Play</div>
-    <div class="nav-item" onclick="showScreen('invite-screen')"><i class="fas fa-users"></i>Invite</div>
+    <div class="nav-item" onclick="showScreen('invite-screen')"><i class="fas fa-gift"></i>Invite</div>
 </div>
-<script>
+    <script>
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
-    let userAddress = null; let isSideLow = true; let lastKnownPending = 0;
+    let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
@@ -124,6 +141,7 @@
 
     function updateBetUI(val) {
         document.getElementById('display-amt').innerText = parseFloat(val).toFixed(2);
+        document.getElementById('est-payout').innerText = (parseFloat(val) * 1.85).toFixed(3);
     }
 
     function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
@@ -138,8 +156,8 @@
         const text = document.getElementById("refLink").innerText;
         navigator.clipboard.writeText(text);
         const btn = document.getElementById("copyBtn");
-        btn.innerHTML = "COPIED ✅";
-        setTimeout(() => { btn.innerHTML = "COPY LINK"; }, 2000);
+        btn.innerHTML = '<i class="fas fa-check"></i> COPIED';
+        setTimeout(() => { btn.innerText = "COPY LINK"; }, 2000);
     }
 
     async function fetchGetter(method) {
@@ -161,45 +179,72 @@
         if (!userAddress) return;
         const p = await fetchGetter("pendingWin");
         const rBal = await fetchGetter("referralBalance");
-        const rCountNano = await fetchGetter("referralCount");
-        const rCount = Math.floor(parseFloat(rCountNano) * 1000000000); // Back to integer
-
+        const rCountRaw = await fetchGetter("referralCount");
+        
+        // Referral Count Logic (Handling Nanoton representation if any)
+        const count = Math.floor(parseFloat(rCountRaw) * 1000000000) || 0; 
+        
         document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
         document.getElementById('ref-bal').innerText = parseFloat(rBal).toFixed(3);
-        document.getElementById('ref-count').innerText = rCount;
+        document.getElementById('ref-count').innerText = count;
 
-        // Bonus Box Logic
-        document.getElementById('tier1').classList.toggle('bonus-ready', rCount >= 10);
-        document.getElementById('tier2').classList.toggle('bonus-ready', rCount >= 30);
-        document.getElementById('tier3').classList.toggle('bonus-ready', rCount >= 50);
-        document.getElementById('tier4').classList.toggle('bonus-ready', rCount >= 100);
+        // Glow Green if eligible for Bonus (Requirement check)
+        document.getElementById('tier1').classList.toggle('eligible', count >= 10);
+        document.getElementById('tier2').classList.toggle('eligible', count >= 30);
+        document.getElementById('tier3').classList.toggle('eligible', count >= 50);
+        document.getElementById('tier4').classList.toggle('eligible', count >= 100);
+        
+        lastKnownPending = parseFloat(p);
     }
 
     async function placeBet() {
         if (!userAddress) return alert("Connect Wallet!");
         const val = document.getElementById('amount-slider').value;
+        const beforePending = lastKnownPending;
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
         try {
-            const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.03")); // Updated Gas Fee
+            // Gas Fee ပြင်ဆင်ချက်: 0.03 TON
+            const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.03")); 
             const cell = new TonWeb.boc.Cell();
             cell.bits.writeUint(0xAAAABBBB, 32);
             cell.bits.writeBit(isSideLow);
             cell.bits.writeCoins(TonWeb.utils.toNano(val));
+
             const params = new URLSearchParams(window.location.search);
             const ref = params.get('ref');
             if (ref) cell.bits.writeAddress(new TonWeb.utils.Address(ref)); else cell.bits.writeAddress(null);
 
+            const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
+            const gameEntry = { time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: "⏳" };
+            gameHistory.push(gameEntry); renderHistory();
+
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 300,
-                messages: [{ address: CONTRACT_ADDR, amount: total.toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
+                messages: [{ address: CONTRACT_ADDR, amount: total.toString(), payload: payload }]
             });
+
+            setTimeout(async () => {
+                await loadData();
+                gameEntry.status = (lastKnownPending > beforePending) ? "WIN 🟢" : "LOSE 🔴";
+                renderHistory();
+            }, 12000);
         } catch (e) { console.error(e); }
+    }
+
+    function renderHistory() {
+        const el = document.getElementById("historyList");
+        if (gameHistory.length === 0) { el.innerHTML = '<tr><td style="padding:20px; opacity:0.5;">No history yet</td></tr>'; return; }
+        el.innerHTML = gameHistory.slice().reverse().map(g => `
+            <tr><td>${g.time}</td><td><b>${g.amount}</b></td><td>${g.side}</td><td>${g.status}</td></tr>
+        `).join("");
     }
 
     async function claimWin() {
         const cell = new TonWeb.boc.Cell(); cell.bits.writeUint(0, 32); cell.bits.writeString("Claim");
         await tonConnectUI.sendTransaction({
             validUntil: Math.floor(Date.now() / 1000) + 300,
-            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.03").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
+            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
         });
     }
 
@@ -207,7 +252,7 @@
         const cell = new TonWeb.boc.Cell(); cell.bits.writeUint(0, 32); cell.bits.writeString("WithdrawRef");
         await tonConnectUI.sendTransaction({
             validUntil: Math.floor(Date.now() / 1000) + 300,
-            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.03").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
+            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
         });
     }
 
@@ -215,11 +260,13 @@
         const cell = new TonWeb.boc.Cell(); cell.bits.writeUint(0, 32); cell.bits.writeString("ClaimBonus");
         await tonConnectUI.sendTransaction({
             validUntil: Math.floor(Date.now() / 1000) + 300,
-            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.03").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
+            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
         });
     }
 
-    setInterval(loadData, 10000);
+    setInterval(loadData, 15000);
+    renderHistory();
 </script>
 </body>
 </html>
+
