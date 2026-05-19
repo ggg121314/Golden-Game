@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V6.3 - EXPANDABLE & DEEPLINK STABLE</title>
+    <title>GGG MASTER V6.3 - STABLE DEEP-LINK</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -16,14 +16,14 @@
         .screen { display: none; flex-direction: column; align-items: center; padding: 15px; width: 100%; box-sizing: border-box; animation: fadeIn 0.4s; }
         .active-screen { display: flex; }
         
-        /* Lobby Card Styles */
+        /* Lobby Multi-Game Grid */
         .lobby-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; }
         .game-card { background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid var(--glass); transition: 0.3s; }
-        .game-card:hover { border-color: var(--accent); }
+        .game-card.featured { border: 2px solid var(--accent); }
         .visual-area { width: 100%; height: 180px; overflow: hidden; position: relative; }
         .game-bg-img { width: 100%; height: 100%; object-fit: cover; }
         .game-details { padding: 15px; text-align: center; }
-        
+
         .control-panel { background: var(--card); width: 100%; max-width: 400px; padding: 20px; border-radius: 25px; border: 1px solid var(--glass); box-sizing: border-box; }
         .stat-item-blue { background: rgba(52, 152, 219, 0.15); padding: 10px; border-radius: 12px; border: 1px solid var(--blue); text-align: center; }
         .stat-item-blue b { color: var(--blue); font-size: 16px; }
@@ -33,12 +33,13 @@
         .side-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
         .side-btn { padding: 12px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; font-weight: bold; cursor: pointer; }
         .side-btn.active { background: var(--accent); color: black; border-color: var(--accent); }
-        .bonus-box { background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); transition: 0.3s; }
-        .bonus-box.eligible { border: 2.5px solid var(--green); box-shadow: 0 0 15px var(--green); transform: scale(1.02); }
-        .footer { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); }
+        .bonus-box { background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); }
+        .bonus-box.eligible { border: 2.5px solid var(--green); box-shadow: 0 0 15px var(--green); }
+        
+        .footer { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); z-index: 1000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #848e9c; font-size: 11px; cursor: pointer; }
         .nav-item.active { color: var(--accent); }
-        .history-table { width: 100%; max-width: 400px; border-collapse: collapse; font-size: 12px; margin-top: 20px; background: var(--card); border-radius: 15px; overflow: hidden; margin-bottom: 20px; }
+        .history-table { width: 100%; max-width: 400px; border-collapse: collapse; font-size: 12px; margin-top: 20px; background: var(--card); border-radius: 15px; overflow: hidden; }
         .history-table td { padding: 12px; text-align: center; border-top: 1px solid var(--glass); }
         .status-checking { color: var(--accent); font-weight: bold; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
@@ -55,25 +56,25 @@
 <div id="lobby-screen" class="screen active-screen">
     <div class="lobby-container">
         
-        <div class="game-card">
+        <div class="game-card featured">
             <div class="visual-area">
                 <img src="https://i.ibb.co/HfV9cGL0/IMG-20260407-222820.png" class="game-bg-img">
             </div>
             <div class="game-details">
-                <h3 style="margin: 0 0 5px 0; color: var(--accent);">GOLDEN LOW-HIGH</h3>
-                <p style="font-size: 12px; opacity: 0.7; margin: 0 0 15px 0;">Fair Play & High Rewards on TON</p>
-                <button class="btn-green" onclick="showScreen('play-screen')">PLAY NOW</button>
+                <h2 style="margin: 0 0 5px 0; color: var(--accent);">GOLDEN LOW-HIGH</h2>
+                <p style="font-size: 12px; opacity: 0.7; margin: 0 0 15px 0;">Predict low or high numbers to win instantly.</p>
+                <button class="btn-green" style="font-size:15px;" onclick="showScreen('play-screen')">PLAY NOW</button>
             </div>
         </div>
 
-        <div class="game-card" style="opacity: 0.6;">
+        <div class="game-card" style="opacity: 0.7;">
             <div class="visual-area">
-                <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-bg-img" style="filter: grayscale(80%);">
+                <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-bg-img" style="filter: grayscale(40%);">
             </div>
             <div class="game-details">
-                <h3 style="margin: 0 0 5px 0; color: #848e9c;">COMING SOON (GAME 2)</h3>
-                <p style="font-size: 12px; opacity: 0.7; margin: 0 0 15px 0;">New Multiplayer Experience</p>
-                <button class="btn-green" style="background: var(--btn); cursor: not-allowed;" disabled onclick="showScreen('game2-screen')">LOCKED</button>
+                <h2 style="margin: 0 0 5px 0; color: #fff;">GGG QUAD-CARD (GAME 2)</h2>
+                <p style="font-size: 12px; opacity: 0.7; margin: 0 0 15px 0;">Choose the lucky card and 4x multiplier.</p>
+                <button class="btn-green" style="font-size:15px; background: var(--blue);" onclick="showScreen('game2-screen')">PLAY NOW</button>
             </div>
         </div>
 
@@ -81,7 +82,7 @@
 </div>
 
 <div id="play-screen" class="screen">
-    <div class="visual-area">
+    <div class="visual-area" style="border-radius: 20px; border: 2px solid var(--accent); margin-bottom: 15px;">
         <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-bg-img">
     </div>
 
@@ -110,8 +111,8 @@
 
 <div id="game2-screen" class="screen">
     <div class="control-panel" style="text-align: center;">
-        <h2>GAME 2 DEVELOPMENT</h2>
-        <p>This screen is ready for your future Game 2 Logic.</p>
+        <h3 style="color:var(--blue);">GGG QUAD-CARD</h3>
+        <p>This game area is ready for deployment.</p>
         <button class="btn-green" onclick="showScreen('lobby-screen')">BACK TO LOBBY</button>
     </div>
 </div>
@@ -128,11 +129,6 @@
             <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.00</b></div>
         </div>
         <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px;">CLAIM REFERRAL</button>
-
-        <div style="text-align:left; background:rgba(52,152,219,0.1); padding:15px; border-radius:15px; margin-top:20px; border:1px solid var(--blue);">
-            <h4 style="margin:0 0 5px 0; color:var(--blue); font-size: 14px;"><i class="fas fa-info-circle"></i> Bonus Rules</h4>
-            <p style="font-size:11px; margin:0; opacity:0.8; line-height:1.4;">Reach active invite milestones to unlock VIP bonuses.</p>
-        </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
             <div class="bonus-box" id="tier1"><b>10 Refs</b><br><small>0.3 TON</small></div>
@@ -155,15 +151,19 @@
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
 
-    // FIXED: Added twaReturnUrl to force Tonkeeper to return straight to the game
-    const currentGameUrl = window.location.href.split('?')[0];
+    // Current page URL to force Telegram/Browser back-direction injection
+    const currentReturnUrl = window.location.href;
+
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
         buttonRootId: "wallet",
         uiOptions: {
-            twaReturnUrl: currentGameUrl
+            twaReturnUrl: currentReturnUrl // Deep link enforcement to prevent Google redirect
         }
     });
+
+    // Device independent deep link safety layer
+    tonConnectUI.setConnectRequestParameters({ state: "ready" });
 
     tonConnectUI.onStatusChange(w => { if (w) { userAddress = w.account.address; updateRefUI(); loadData(); } });
 
@@ -171,11 +171,14 @@
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
         document.getElementById(id).classList.add('active-screen');
         
-        let tabName = id.split('-')[0];
-        if(tabName === 'game2') tabName = 'lobby'; // Keep lobby active for sub games
-        
-        document.querySelectorAll('.nav-item').forEach(n => { 
-            n.classList.toggle('active', n.innerText.toLowerCase().includes(tabName)); 
+        // Dynamic Footer Nav Highlighter
+        document.querySelectorAll('.nav-item').forEach(n => {
+            const tabName = n.innerText.toLowerCase().trim();
+            if(id === 'lobby-screen' && tabName === 'lobby') n.classList.add('active');
+            else if(id === 'play-screen' && tabName === 'play') n.classList.add('active');
+            else if(id === 'game2-screen' && tabName === 'play') n.classList.add('active'); // highlights play tab for Game 2 too
+            else if(id === 'invite-screen' && tabName === 'invite') n.classList.add('active');
+            else n.classList.remove('active');
         });
     }
 
@@ -263,14 +266,10 @@
             
             const beforePending = lastKnownPending;
 
-            // FIXED: Added return_url to deeplink message parameters for mobile apps redirect stability
+            // Direct injection for return action to bypass browser navigation glitch
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 300,
-                messages: [{ 
-                    address: CONTRACT_ADDR, 
-                    amount: total.toString(), 
-                    payload: payload 
-                }]
+                messages: [{ address: CONTRACT_ADDR, amount: total.toString(), payload: payload }]
             });
 
             let checks = 0;
