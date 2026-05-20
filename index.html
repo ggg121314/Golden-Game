@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V6.4 - TELEGRAM WEBAPP STABLE</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>GGG MASTER V6.5 - DIRECT RETURN FIX</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -30,7 +29,6 @@
         .btn-green { width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--green); color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-green:active { transform: scale(0.95); }
         
-        /* Community Social Buttons CSS */
         .social-join-btn { width: 100%; padding: 12px; border-radius: 12px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; text-decoration: none; font-size: 14px; }
         
         .bet-slider { width: 100%; height: 8px; border-radius: 5px; background: #334155; outline: none; -webkit-appearance: none; accent-color: var(--accent); }
@@ -83,7 +81,7 @@
 </div>
 
 <div id="play-screen" class="screen">
-    <div class="visual-area">
+    <div class="visual-area" style="border-radius: 20px; border: 2px solid var(--accent); margin-bottom: 15px;">
         <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-bg-img">
     </div>
     <div class="control-panel">
@@ -154,28 +152,20 @@
     <div class="nav-item" onclick="showScreen('invite-screen')"><i class="fas fa-gift"></i>Invite</div>
 </div>
 <script>
-    // Initialize Telegram WebApp API
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand(); // ဂိမ်းမျက်နှာပြင်ကို ဖုန်း screen အပြည့်ချဲ့ပေးရန်
-    }
-
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
 
-    // Telegram Bot WebApp Protocol logic injection
-    let deepLinkReturn = window.location.href;
-    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
-        deepLinkReturn = "https://t.me/GoldenGameGlobal_official_bot/start"; // Bot link override
-    }
+    // Forceful Return Hooking Algorithm (Google Redirect Fix)
+    const secureGameUrl = window.location.href.split('#')[0];
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
         buttonRootId: "wallet",
         uiOptions: {
-            twaReturnUrl: deepLinkReturn // Tonkeeper redirects directly back into TG bot area
+            twaReturnUrl: secureGameUrl, // Fallback for pure TG environments
+            returnStrategy: 'back'       // CRITICAL FIX: Forces Android Task Manager to return to origin tab instead of Google Home
         }
     });
 
@@ -210,7 +200,6 @@
 
     function updateRefUI() {
         if (!userAddress) return;
-        // Referral link generation logic
         const base = window.location.origin + window.location.pathname;
         document.getElementById("refLink").innerText = base + "?ref=" + userAddress;
     }
@@ -280,6 +269,7 @@
             
             const beforePending = lastKnownPending;
 
+            // Transmit with strict configuration overrides
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 300,
                 messages: [{ address: CONTRACT_ADDR, amount: total.toString(), payload: payload }]
