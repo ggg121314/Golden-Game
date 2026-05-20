@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V6.3 - STABLE DEEP-LINK</title>
+    <title>GGG MASTER V6.4 - REDIRECT FIX</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -16,7 +16,6 @@
         .screen { display: none; flex-direction: column; align-items: center; padding: 15px; width: 100%; box-sizing: border-box; animation: fadeIn 0.4s; }
         .active-screen { display: flex; }
         
-        /* Lobby Multi-Game Grid */
         .lobby-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; }
         .game-card { background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid var(--glass); transition: 0.3s; }
         .game-card.featured { border: 2px solid var(--accent); }
@@ -55,7 +54,6 @@
 
 <div id="lobby-screen" class="screen active-screen">
     <div class="lobby-container">
-        
         <div class="game-card featured">
             <div class="visual-area">
                 <img src="https://i.ibb.co/HfV9cGL0/IMG-20260407-222820.png" class="game-bg-img">
@@ -77,12 +75,11 @@
                 <button class="btn-green" style="font-size:15px; background: var(--blue);" onclick="showScreen('game2-screen')">PLAY NOW</button>
             </div>
         </div>
-
     </div>
 </div>
 
 <div id="play-screen" class="screen">
-    <div class="visual-area" style="border-radius: 20px; border: 2px solid var(--accent); margin-bottom: 15px;">
+    <div class="visual-area">
         <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-bg-img">
     </div>
 
@@ -145,25 +142,23 @@
     <div class="nav-item" onclick="showScreen('play-screen')"><i class="fas fa-gamepad"></i>Play</div>
     <div class="nav-item" onclick="showScreen('invite-screen')"><i class="fas fa-gift"></i>Invite</div>
 </div>
+
 <script>
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
 
-    // Current page URL to force Telegram/Browser back-direction injection
-    const currentReturnUrl = window.location.href;
-
+    // Force redirection strategy dynamically for different environments
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
-        buttonRootId: "wallet",
-        uiOptions: {
-            twaReturnUrl: currentReturnUrl // Deep link enforcement to prevent Google redirect
-        }
+        buttonRootId: "wallet"
     });
 
-    // Device independent deep link safety layer
-    tonConnectUI.setConnectRequestParameters({ state: "ready" });
+    // Fix deep-linking behavior globally
+    tonConnectUI.uiOptions = {
+        twaReturnUrl: window.location.href
+    };
 
     tonConnectUI.onStatusChange(w => { if (w) { userAddress = w.account.address; updateRefUI(); loadData(); } });
 
@@ -171,12 +166,11 @@
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
         document.getElementById(id).classList.add('active-screen');
         
-        // Dynamic Footer Nav Highlighter
         document.querySelectorAll('.nav-item').forEach(n => {
             const tabName = n.innerText.toLowerCase().trim();
             if(id === 'lobby-screen' && tabName === 'lobby') n.classList.add('active');
             else if(id === 'play-screen' && tabName === 'play') n.classList.add('active');
-            else if(id === 'game2-screen' && tabName === 'play') n.classList.add('active'); // highlights play tab for Game 2 too
+            else if(id === 'game2-screen' && tabName === 'play') n.classList.add('active');
             else if(id === 'invite-screen' && tabName === 'invite') n.classList.add('active');
             else n.classList.remove('active');
         });
@@ -266,10 +260,12 @@
             
             const beforePending = lastKnownPending;
 
-            // Direct injection for return action to bypass browser navigation glitch
+            // CRITICAL FIX: Direct injection injection to handle Chrome back-navigation glitch
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 300,
                 messages: [{ address: CONTRACT_ADDR, amount: total.toString(), payload: payload }]
+            }, {
+                returnStrategy: 'back' // Tells Tonkeeper explicitly to force return back to previous active app tab
             });
 
             let checks = 0;
@@ -318,6 +314,8 @@
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 300,
                 messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
+            }, {
+                returnStrategy: 'back'
             });
         } catch(e) {}
     }
