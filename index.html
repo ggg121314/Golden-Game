@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V6.7 - TG BOT STABLE INTEGRATION</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>GGG MASTER V6.8 - UNIVERSAL CONNECT FIX</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -101,7 +100,6 @@
     </div>
     <table class="history-table"><tbody id="historyList"></tbody></table>
 </div>
-
 <div id="game2-screen" class="screen">
     <div class="control-panel" style="text-align: center;">
         <h3 style="color:var(--blue);">GGG QUAD-CARD</h3>
@@ -154,29 +152,21 @@
 </div>
 
 <script>
-    // Initialize Telegram WebApp Framework
-    let tgBotLink = "https://t.me/GoldenGameGlobal_official_bot/app";
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
-        // Extract Telegram specific referral codes if present
-        const initParams = window.Telegram.WebApp.initDataUnsafe;
-        if(initParams && initParams.start_param) {
-            window.history.replaceState(null, null, "?ref=" + initParams.start_param);
-        }
-    }
-
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
 
-    // TON CONNECT STABLE TELEGRAM APP PROTOCOL
+    // Adaptive Redirect Protocol: Detects environment natively
+    // If inside Telegram WebView, hooks deep links. If outside, retains strict window anchor
+    const isInsideTelegram = navigator.userAgent.includes('Telegram') || window.location.href.includes('tgWebAppStartParam');
+    const dynamicReturnUrl = isInsideTelegram ? "https://t.me/GoldenGameGlobal_official_bot" : window.location.href.split('#')[0];
+
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
         buttonRootId: "wallet",
         uiOptions: {
-            twaReturnUrl: tgBotLink
+            twaReturnUrl: dynamicReturnUrl
         }
     });
 
@@ -215,8 +205,8 @@
 
     function updateRefUI() {
         if (!userAddress) return;
-        // Clean format for Telegram Bot Direct Deep Linking Referral System
-        document.getElementById("refLink").innerText = "https://t.me/GoldenGameGlobal_official_bot/app?startapp=" + userAddress;
+        const base = window.location.origin + window.location.pathname;
+        document.getElementById("refLink").innerText = base + "?ref=" + userAddress;
     }
 
     function copyLink() {
@@ -337,4 +327,14 @@
     async function sendContractTx(cell) {
         try {
             await tonConnectUI.sendTransaction({
-                validUntil: Math.floor(Date.now() / 1000
+                validUntil: Math.floor(Date.now() / 1000) + 300,
+                messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
+            });
+        } catch(e) {}
+    }
+
+    setInterval(loadData, 10000);
+    renderHistory();
+</script>
+</body>
+</html>
