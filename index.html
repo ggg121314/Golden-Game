@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V6.8 - UNIVERSAL CONNECT FIX</title>
+    <title>GGG MASTER V6.9 - LEGACY ULTIMATE ENGINE</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -152,22 +152,16 @@
 </div>
 
 <script>
+    // CONTRACT ADDRESS UPDATED TO NEW VERSION 
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
 
-    // Adaptive Redirect Protocol: Detects environment natively
-    // If inside Telegram WebView, hooks deep links. If outside, retains strict window anchor
-    const isInsideTelegram = navigator.userAgent.includes('Telegram') || window.location.href.includes('tgWebAppStartParam');
-    const dynamicReturnUrl = isInsideTelegram ? "https://t.me/GoldenGameGlobal_official_bot" : window.location.href.split('#')[0];
-
+    // LEGACY PROTOCOL RESTORED: No forced twaReturnUrl to fix Messenger-to-Google glitch
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
-        buttonRootId: "wallet",
-        uiOptions: {
-            twaReturnUrl: dynamicReturnUrl
-        }
+        buttonRootId: "wallet"
     });
 
     tonConnectUI.onStatusChange(w => { if (w) { userAddress = w.account.address; updateRefUI(); loadData(); } });
@@ -201,12 +195,14 @@
         document.getElementById('est-payout').innerText = (parseFloat(val) * 1.85).toFixed(3);
     }
 
+    // Set Low/High Choice
     function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
 
+    // Generates the native web referral link exactly like the old working system
     function updateRefUI() {
         if (!userAddress) return;
-        const base = window.location.origin + window.location.pathname;
-        document.getElementById("refLink").innerText = base + "?ref=" + userAddress;
+        const link = window.location.origin + window.location.pathname + "?ref=" + userAddress;
+        document.getElementById("refLink").innerText = link;
     }
 
     function copyLink() {
