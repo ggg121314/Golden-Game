@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V6.9 - LEGACY ULTIMATE ENGINE</title>
+    <title>GGG MASTER V7.0 - ULTIMATE ENGINE</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -152,16 +152,19 @@
 </div>
 
 <script>
-    // CONTRACT ADDRESS UPDATED TO NEW VERSION 
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
 
-    // LEGACY PROTOCOL RESTORED: No forced twaReturnUrl to fix Messenger-to-Google glitch
+    // FIXED PROTOCOL: Explicit fallback options to anchor back safely to origin tab instead of Google
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
-        buttonRootId: "wallet"
+        buttonRootId: "wallet",
+        actionsConfiguration: {
+            modals: 'from-bottom',
+            notifications: 'from-bottom'
+        }
     });
 
     tonConnectUI.onStatusChange(w => { if (w) { userAddress = w.account.address; updateRefUI(); loadData(); } });
@@ -195,14 +198,12 @@
         document.getElementById('est-payout').innerText = (parseFloat(val) * 1.85).toFixed(3);
     }
 
-    // Set Low/High Choice
     function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
 
-    // Generates the native web referral link exactly like the old working system
     function updateRefUI() {
         if (!userAddress) return;
-        const link = window.location.origin + window.location.pathname + "?ref=" + userAddress;
-        document.getElementById("refLink").innerText = link;
+        const base = window.location.origin + window.location.pathname;
+        document.getElementById("refLink").innerText = base + "?ref=" + userAddress;
     }
 
     function copyLink() {
@@ -224,16 +225,23 @@
                 body: JSON.stringify({ "address": CONTRACT_ADDR, "method": method, "stack": [["tvm.Slice", b64]] })
             });
             const d = await r.json();
-            return d.result?.stack?.[0]?.[1] ? TonWeb.utils.fromNano(BigInt(d.result.stack[0][1]).toString()) : "0";
+            return d.result?.stack?.[0]?.[1] || "0";
         } catch(e) { return "0"; }
     }
 
     async function loadData() {
         if (!userAddress) return;
-        const p = await fetchGetter("pendingWin");
-        const rBal = await fetchGetter("referralBalance");
+        
+        // Accurate BigInt retrieval for correct formatting mapping
+        const pRaw = await fetchGetter("pendingWin");
+        const rBalRaw = await fetchGetter("referralBalance");
         const rCountRaw = await fetchGetter("referralCount");
-        const count = Math.floor(parseFloat(rCountRaw) * 1000000000) || 0; 
+
+        const p = pRaw !== "0" ? TonWeb.utils.fromNano(BigInt(pRaw).toString()) : "0";
+        const rBal = rBalRaw !== "0" ? TonWeb.utils.fromNano(BigInt(rBalRaw).toString()) : "0";
+        
+        // FIXED: Absolute integer translation to natively register total accounts invited
+        const count = rCountRaw !== "0" ? parseInt(BigInt(rCountRaw).toString()) : 0;
         
         lastKnownPending = parseFloat(p);
         document.getElementById('pending').innerText = lastKnownPending.toFixed(3);
@@ -266,7 +274,14 @@
             
             const gameId = Date.now();
             const gameEntry = { id: gameId, time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: '<span class="status-checking">CHECKING...</span>' };
-            gameHistory.push(gameEntry); 
+            
+            gameHistory.push(gameEntry);
+            
+            // FIXED: Automatically slice and preserve only the last 10 rounds inside LocalStorage
+            if(gameHistory.length > 10) {
+                gameHistory = gameHistory.slice(-10);
+            }
+            
             localStorage.setItem('ggg_history', JSON.stringify(gameHistory));
             renderHistory();
             
@@ -300,7 +315,10 @@
     function renderHistory() {
         const el = document.getElementById("historyList");
         if (gameHistory.length === 0) { el.innerHTML = '<tr><td style="padding:20px; opacity:0.5;">Waiting for your luck...</td></tr>'; return; }
-        el.innerHTML = gameHistory.slice().reverse().map(g => `
+        
+        // FIXED: Enforces safe rendering logic to always display maximum 10 latest elements
+        const limitedHistory = gameHistory.slice(-10);
+        el.innerHTML = limitedHistory.slice().reverse().map(g => `
             <tr><td>${g.time}</td><td><b>${g.amount}</b></td><td>${g.side}</td><td>${g.status}</td></tr>
         `).join("");
     }
