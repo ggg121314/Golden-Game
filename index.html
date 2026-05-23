@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V7.0 - ULTIMATE ENGINE</title>
+    <title>GGG MASTER V6.10 - LEGACY ENGINE FIX</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -100,7 +100,7 @@
     </div>
     <table class="history-table"><tbody id="historyList"></tbody></table>
 </div>
-<div id="game2-screen" class="screen">
+    <div id="game2-screen" class="screen">
     <div class="control-panel" style="text-align: center;">
         <h3 style="color:var(--blue);">GGG QUAD-CARD</h3>
         <p>This game area is ready for deployment.</p>
@@ -152,19 +152,16 @@
 </div>
 
 <script>
+    // FIXED CONTRACT ADDRESS MATCHING TACT FILE 100%
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
 
-    // FIXED PROTOCOL: Explicit fallback options to anchor back safely to origin tab instead of Google
+    // NATIVE RETURN PROTOCOL: Fixed Redirect Loop across multi-wallets
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
-        buttonRootId: "wallet",
-        actionsConfiguration: {
-            modals: 'from-bottom',
-            notifications: 'from-bottom'
-        }
+        buttonRootId: "wallet"
     });
 
     tonConnectUI.onStatusChange(w => { if (w) { userAddress = w.account.address; updateRefUI(); loadData(); } });
@@ -214,7 +211,8 @@
         setTimeout(() => { btn.innerText = "COPY LINK"; }, 2000);
     }
 
-    async function fetchGetter(method) {
+    // FIXED GETTER PARSING: Raw stack reading to prevent Decimal conversion errors for Counters
+    async function fetchGetter(method, isIntOnly = false) {
         if (!userAddress) return "0";
         try {
             const addr = new TonWeb.utils.Address(userAddress);
@@ -225,23 +223,22 @@
                 body: JSON.stringify({ "address": CONTRACT_ADDR, "method": method, "stack": [["tvm.Slice", b64]] })
             });
             const d = await r.json();
-            return d.result?.stack?.[0]?.[1] || "0";
+            const rawVal = d.result?.stack?.[0]?.[1];
+            if(!rawVal) return "0";
+            
+            if(isIntOnly) {
+                return BigInt(rawVal).toString(); // Direct Integer Reading for referralCount
+            }
+            return TonWeb.utils.fromNano(BigInt(rawVal).toString());
         } catch(e) { return "0"; }
     }
 
     async function loadData() {
         if (!userAddress) return;
-        
-        // Accurate BigInt retrieval for correct formatting mapping
-        const pRaw = await fetchGetter("pendingWin");
-        const rBalRaw = await fetchGetter("referralBalance");
-        const rCountRaw = await fetchGetter("referralCount");
-
-        const p = pRaw !== "0" ? TonWeb.utils.fromNano(BigInt(pRaw).toString()) : "0";
-        const rBal = rBalRaw !== "0" ? TonWeb.utils.fromNano(BigInt(rBalRaw).toString()) : "0";
-        
-        // FIXED: Absolute integer translation to natively register total accounts invited
-        const count = rCountRaw !== "0" ? parseInt(BigInt(rCountRaw).toString()) : 0;
+        const p = await fetchGetter("pendingWin", false);
+        const rBal = await fetchGetter("referralBalance", false);
+        const countStr = await fetchGetter("referralCount", true); // Core Integer Fix
+        const count = parseInt(countStr) || 0;
         
         lastKnownPending = parseFloat(p);
         document.getElementById('pending').innerText = lastKnownPending.toFixed(3);
@@ -275,13 +272,11 @@
             const gameId = Date.now();
             const gameEntry = { id: gameId, time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: '<span class="status-checking">CHECKING...</span>' };
             
-            gameHistory.push(gameEntry);
-            
-            // FIXED: Automatically slice and preserve only the last 10 rounds inside LocalStorage
-            if(gameHistory.length > 10) {
+            gameHistory.push(gameEntry); 
+            // 10-ITEM HISTORY LIMITER: Retains only the latest 10 items in localStorage natively
+            if (gameHistory.length > 10) {
                 gameHistory = gameHistory.slice(-10);
             }
-            
             localStorage.setItem('ggg_history', JSON.stringify(gameHistory));
             renderHistory();
             
@@ -316,9 +311,9 @@
         const el = document.getElementById("historyList");
         if (gameHistory.length === 0) { el.innerHTML = '<tr><td style="padding:20px; opacity:0.5;">Waiting for your luck...</td></tr>'; return; }
         
-        // FIXED: Enforces safe rendering logic to always display maximum 10 latest elements
-        const limitedHistory = gameHistory.slice(-10);
-        el.innerHTML = limitedHistory.slice().reverse().map(g => `
+        // Render 10 items exactly to keep UI lightweight
+        const displayList = gameHistory.slice(-10);
+        el.innerHTML = displayList.slice().reverse().map(g => `
             <tr><td>${g.time}</td><td><b>${g.amount}</b></td><td>${g.side}</td><td>${g.status}</td></tr>
         `).join("");
     }
