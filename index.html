@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V6.11 - NO-REDIRECT ENGINE</title>
+    <title>GGG MASTER V6.11 - EMPIRE FIX</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,47 +12,54 @@
         .light-mode { --bg: #f5f7f9; --card: #ffffff; --accent: #d4af37; --green: #27ae60; --blue: #2980b9; --text: #1e2329; --nav: #ffffff; --btn: #e4e6eb; --glass: rgba(0, 0, 0, 0.05); }
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; transition: 0.3s; overflow-x: hidden; }
         .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: url('https://i.ibb.co/FbrzsJ9J/Screenshot-2026-04-10-17-14-06-636.jpg') center/cover no-repeat; opacity: 0.15; }
-        .header { display: flex; justify-content: space-between; padding: 15px; background: var(--card); align-items: center; border-bottom: 1px solid var(--glass); position: sticky; top: 0; z-index: 1000; }
+        .header { display: flex; justify-content: space-between; padding: 15px; background: var(--card); align-items: center; border-bottom: 1px solid var(--glass); position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         .screen { display: none; flex-direction: column; align-items: center; padding: 15px; width: 100%; box-sizing: border-box; animation: fadeIn 0.4s; }
         .active-screen { display: flex; }
         
-        .lobby-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; }
-        .game-card { background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid var(--glass); }
-        .game-card.featured { border: 2px solid var(--accent); }
+        .lobby-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; margin-top: 10px; }
+        .game-card { background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid var(--glass); transition: 0.3s; }
+        .game-card.featured { border: 2px solid var(--accent); box-shadow: 0 0 15px rgba(241,196,15,0.15); }
         .visual-area { width: 100%; height: 180px; overflow: hidden; position: relative; }
         .game-bg-img { width: 100%; height: 100%; object-fit: cover; }
         .game-details { padding: 15px; text-align: center; }
 
         .control-panel { background: var(--card); width: 100%; max-width: 400px; padding: 20px; border-radius: 25px; border: 1px solid var(--glass); box-sizing: border-box; }
-        .stat-item-blue { background: rgba(52, 152, 219, 0.15); padding: 10px; border-radius: 12px; border: 1px solid var(--blue); text-align: center; }
+        .stat-item-blue { background: rgba(52, 152, 219, 0.1); padding: 10px; border-radius: 12px; border: 1px solid var(--blue); text-align: center; }
         .stat-item-blue b { color: var(--blue); font-size: 16px; }
-        .btn-green { width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--green); color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-green { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--green); color: white; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(46,204,113,0.2); }
+        .btn-green:active { transform: scale(0.98); }
         
         .social-join-btn { width: 100%; padding: 12px; border-radius: 12px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; text-decoration: none; font-size: 14px; }
+        
         .bet-slider { width: 100%; height: 8px; border-radius: 5px; background: #334155; outline: none; -webkit-appearance: none; accent-color: var(--accent); }
         .side-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
-        .side-btn { padding: 12px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; font-weight: bold; cursor: pointer; }
-        .side-btn.active { background: var(--accent); color: black; border-color: var(--accent); }
-        .bonus-box { background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); font-size: 12px; }
-        .bonus-box.eligible { border: 2px solid var(--green); box-shadow: 0 0 10px var(--green); }
+        .side-btn { padding: 14px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; font-weight: bold; cursor: pointer; }
+        .side-btn.active { background: var(--accent); color: black; border-color: var(--accent); box-shadow: 0 4px 12px rgba(241,196,15,0.2); }
+        .bonus-box { background: rgba(52, 152, 219, 0.08); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); }
+        .bonus-box.eligible { border: 2.5px solid var(--green); box-shadow: 0 0 15px rgba(46,204,113,0.3); }
         
-        .footer { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #848e9c; font-size: 11px; cursor: pointer; }
-        .nav-item.active { color: var(--accent); }
-        .history-table { width: 100%; max-width: 400px; border-collapse: collapse; font-size: 12px; margin-top: 20px; background: var(--card); border-radius: 15px; overflow: hidden; }
+        .footer { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); z-index: 1000; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #848e9c; font-size: 12px; cursor: pointer; gap: 4px; }
+        .nav-item.active { color: var(--accent); font-weight: bold; }
+        .nav-item i { font-size: 18px; }
+        
+        .history-card { width: 100%; max-width: 400px; margin-top: 20px; background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid var(--glass); }
+        .history-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .history-table th { background: rgba(255,255,255,0.02); padding: 12px; text-align: center; color: var(--accent); }
         .history-table td { padding: 12px; text-align: center; border-top: 1px solid var(--glass); }
-        .status-checking { color: var(--accent); font-weight: bold; animation: pulse 1s infinite; }
+        
+        .status-checking { color: var(--accent); font-weight: bold; animation: blink 1s infinite; }
         .status-win { color: var(--green); font-weight: bold; }
         .status-lose { color: #ff4757; font-weight: bold; }
-        @keyframes pulse { 50% { opacity: 0.5; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes blink { 50% { opacity: 0.4; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 <div class="bg-overlay"></div>
 <div class="header">
     <div id="wallet"></div>
-    <div onclick="toggleMode()" style="color:var(--accent); font-size:20px; cursor:pointer;"><i class="fas fa-moon" id="theme-icon"></i></div>
+    <div onclick="toggleMode()" style="color:var(--accent); font-size:20px; cursor:pointer; padding:5px;"><i class="fas fa-moon" id="theme-icon"></i></div>
 </div>
 
 <div id="lobby-screen" class="screen active-screen">
@@ -64,11 +71,22 @@
             <div class="game-details">
                 <h2 style="margin: 0 0 5px 0; color: var(--accent);">GOLDEN LOW-HIGH</h2>
                 <p style="font-size: 12px; opacity: 0.7; margin: 0 0 15px 0;">Predict low or high numbers to win instantly.</p>
-                <button class="btn-green" style="font-size:15px;" onclick="showScreen('play-screen')">PLAY NOW</button>
+                <button class="btn-green" onclick="showScreen('play-screen')">PLAY NOW</button>
+            </div>
+        </div>
+        <div class="game-card" style="opacity: 0.6;">
+            <div class="visual-area">
+                <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-bg-img" style="filter: grayscale(30%);">
+            </div>
+            <div class="game-details">
+                <h2 style="margin: 0 0 5px 0; color: #fff;">GGG QUAD-CARD (GAME 2)</h2>
+                <p style="font-size: 12px; opacity: 0.7; margin: 0 0 15px 0;">Choose the lucky card and 4x multiplier.</p>
+                <button class="btn-green" style="background: var(--blue);" onclick="showScreen('game2-screen')">PLAY NOW</button>
             </div>
         </div>
     </div>
 </div>
+
 <div id="play-screen" class="screen">
     <div class="visual-area" style="border-radius: 20px; border: 2px solid var(--accent); margin-bottom: 15px; max-width:400px;">
         <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-bg-img">
@@ -83,67 +101,100 @@
         <button class="btn-green" style="height:55px; font-size:18px;" id="betBtn" onclick="placeBet()">PLACE BET</button>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
             <div class="stat-item-blue"><span>PENDING WIN</span><br><b id="pending">0.00</b></div>
-            <button onclick="claimWin()" class="btn-green" style="background:var(--green);">CLAIM WIN</button>
+            <button onclick="claimWin()" class="btn-green" style="background:var(--green); padding:0;">CLAIM WIN</button>
         </div>
-        <div style="text-align:center; font-size:10px; margin-top:10px; opacity:0.6;">Est. Payout: <span id="est-payout">0.185</span> | Gas: 0.05 TON</div>
+        <div style="text-align:center; font-size:11px; margin-top:12px; opacity:0.6;">Est. Payout: <span id="est-payout">0.185</span> TON | Gas: 0.03 TON</div>
     </div>
-    <table class="history-table"><tbody id="historyList"></tbody></table>
+    <div class="history-card">
+        <table class="history-table">
+            <thead><tr><th>TIME</th><th>AMOUNT</th><th>SIDE</th><th>STATUS</th></tr></thead>
+            <tbody id="historyList"></tbody>
+        </table>
+    </div>
+</div>
+    <div id="game2-screen" class="screen">
+    <div class="control-panel" style="text-align: center; margin-top: 20px;">
+        <h3 style="color:var(--blue);">GGG QUAD-CARD</h3>
+        <p style="opacity:0.7; font-size:13px;">This game area is locked and ready for contract deployment.</p>
+        <button class="btn-green" onclick="showScreen('lobby-screen')">BACK TO LOBBY</button>
+    </div>
 </div>
 
 <div id="invite-screen" class="screen">
     <div class="control-panel" style="text-align:center;">
-        <i class="fas fa-users" style="font-size:40px; color:var(--accent);"></i>
-        <h3 style="margin:10px 0;">REFERRAL SYSTEM</h3>
-        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Connect wallet</div>
-        <button id="copyBtn" onclick="copyLink()" class="btn-green" style="background:var(--accent); color:black;">COPY LINK</button>
+        <i class="fas fa-crown" style="font-size:40px; color:var(--accent);"></i>
+        <h3 style="margin:10px 0;">REFERRAL ENGINE</h3>
+        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:12px; border-radius:12px; word-break:break-all; margin-bottom:12px; border: 1px solid var(--glass);">Connect wallet</div>
+        <button id="copyBtn" onclick="copyLink()" class="btn-green" style="background:var(--accent); color:black; font-weight:900;">COPY LINK</button>
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
-            <div class="stat-item-blue"><span>INVITED</span><br><b id="ref-count">0</b></div>
-            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.00</b></div>
+            <div class="stat-item-blue"><span>INVITED COUNT</span><br><b id="ref-count">0</b></div>
+            <div class="stat-item-blue"><span>REFERRAL BAL</span><br><b id="ref-bal">0.00</b></div>
         </div>
-        <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px;">CLAIM REFERRAL</button>
+        <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px; background:#1e293b; color:white; border:1px solid #334155;">CLAIM REFERRAL</button>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:15px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
             <div class="bonus-box" id="tier1"><b>10 Refs</b><br><small>0.3 TON</small></div>
             <div class="bonus-box" id="tier2"><b>30 Refs</b><br><small>0.6 TON</small></div>
             <div class="bonus-box" id="tier3"><b>50 Refs</b><br><small>0.6 TON</small></div>
             <div class="bonus-box" id="tier4"><b>100 Refs</b><br><small>1.5 TON</small></div>
         </div>
         <button onclick="claimBonus()" class="btn-green" style="margin-top:15px; background:var(--blue);">CLAIM VIP BONUS</button>
+
+        <div style="text-align:left; background:rgba(255,255,255,0.01); padding:15px; border-radius:15px; margin-top:20px; border:1px solid var(--glass);">
+            <h4 style="margin:0 0 12px 0; color:var(--accent); text-align:center;"><i class="fas fa-share-alt"></i> COMMUNITY HUB</h4>
+            <a href="https://t.me/TripalG_GoldenGameGlobal" target="_blank" class="social-join-btn" style="background:#0088cc;"><i class="fab fa-telegram-plane"></i> Official Channel</a>
+            <a href="https://t.me/GoldenGameGlobal3" target="_blank" class="social-join-btn" style="background:#249ed8;"><i class="fas fa-comments"></i> Global Chat</a>
+            <a href="https://t.me/GoldenGameGlobal_official_bot" target="_blank" class="social-join-btn" style="background:var(--btn); border:1px solid var(--glass);"><i class="fas fa-robot"></i> Master Bot Access</a>
+        </div>
     </div>
 </div>
 
 <div class="footer">
     <div class="nav-item active" onclick="showScreen('lobby-screen')"><i class="fas fa-home"></i>Lobby</div>
     <div class="nav-item" onclick="showScreen('play-screen')"><i class="fas fa-gamepad"></i>Play</div>
-    <div class="nav-item" onclick="showScreen('invite-screen')"><i class="fas fa-gift"></i>Invite</div>
+    <div class="nav-item" onclick="showScreen('invite-screen')"><i class="fas fa-users"></i>Invite</div>
 </div>
 
 <script>
-    // FIXED TO MATCH YOUR CONTRACT DIRECTLY
+    // EXACT TACT ADDRESS MATCHING 100%
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
 
-    // LEGACY REDIRECT PROTECTOR: Keeps users inside the app exactly like V3.2
+    // --- SMART PERMANENT REFERRAL ROUTER (PHYO'S CONCEPT) ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const refFromUrl = urlParams.get('ref');
+    if (refFromUrl && refFromUrl.length > 10) {
+        localStorage.setItem('ggg_permanent_referrer', refFromUrl);
+    }
+
+    // LEGACY STABLE CONNECTION (Prevents Google Box Redirection)
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
-        buttonRootId: "wallet"
+        buttonRootId: "wallet",
+        uiOptions: {
+            twaReturnUrl: 'https://t.me/GoldenGameGlobal_official_bot' // Direct Back-To-Bot Routing
+        }
     });
 
     tonConnectUI.onStatusChange(w => { if (w) { userAddress = w.account.address; updateRefUI(); loadData(); } });
 
-    if(localStorage.getItem('ggg_history_v6')) {
-        try { gameHistory = JSON.parse(localStorage.getItem('ggg_history_v6')); } catch(e){}
+    if(localStorage.getItem('ggg_history_v11')) {
+        try { gameHistory = JSON.parse(localStorage.getItem('ggg_history_v11')); } catch(e){}
     }
 
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
         document.getElementById(id).classList.add('active-screen');
         document.querySelectorAll('.nav-item').forEach(n => {
-            const tabName = n.innerText.toLowerCase().trim();
-            n.classList.toggle('active', id.startsWith(tabName));
+            const tab = n.innerText.toLowerCase().trim();
+            if(id === 'lobby-screen' && tab === 'lobby') n.classList.add('active');
+            else if(id === 'play-screen' && tab === 'play') n.classList.add('active');
+            else if(id === 'game2-screen' && tab === 'play') n.classList.add('active');
+            else if(id === 'invite-screen' && tab === 'invite') n.classList.add('active');
+            else n.classList.remove('active');
         });
     }
 
@@ -167,25 +218,15 @@
     }
 
     function copyLink() {
-        navigator.clipboard.writeText(document.getElementById("refLink").innerText);
-        const btn = document.getElementById("copyBtn"); btn.innerHTML = '<i class="fas fa-check"></i> COPIED';
+        const text = document.getElementById("refLink").innerText;
+        navigator.clipboard.writeText(text);
+        const btn = document.getElementById("copyBtn");
+        btn.innerHTML = '<i class="fas fa-check"></i> COPIED';
         setTimeout(() => { btn.innerText = "COPY LINK"; }, 2000);
     }
 
-    // TELEGRAM BOT REFERRAL EXTRACTION HACK: Pulls ref even inside pure Bot starts
-    function getReferrer() {
-        const params = new URLSearchParams(window.location.search);
-        let ref = params.get('ref');
-        if (!ref && window.Telegram && window.Telegram.WebApp) {
-            const initDataUnsafe = window.Telegram.WebApp.initDataUnsafe;
-            if (initDataUnsafe && initDataUnsafe.start_param) {
-                ref = initDataUnsafe.start_param;
-            }
-        }
-        return ref;
-    }
-
-    async function fetchGetter(method, isCount = false) {
+    // RAW STACK READER - Fixes Referral Counts returning 0 due to Nano Decimal parsing
+    async function fetchGetter(method, isIntOnly = false) {
         if (!userAddress) return "0";
         try {
             const addr = new TonWeb.utils.Address(userAddress);
@@ -198,7 +239,7 @@
             const d = await r.json();
             const rawVal = d.result?.stack?.[0]?.[1];
             if(!rawVal) return "0";
-            if(isCount) return BigInt(rawVal).toString(); // Count reading fix
+            if(isIntOnly) return BigInt(rawVal).toString();
             return TonWeb.utils.fromNano(BigInt(rawVal).toString());
         } catch(e) { return "0"; }
     }
@@ -227,26 +268,28 @@
         const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
         try {
-            const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.05"));
-            
-            // ANTI-REDIRECT CELL BUILD: Re-architected based on Legacy V3.2 to completely stop browser bounces
+            const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.03"));
             const cell = new TonWeb.boc.Cell();
             cell.bits.writeUint(0xAAAABBBB, 32);
             cell.bits.writeBit(isSideLow);
-            cell.bits.writeCoins(TonWeb.utils.toNano(val)); // Exact 1.85x Payout Matcher
+            cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            const ref = getReferrer();
-            if (ref) cell.bits.writeAddress(new TonWeb.utils.Address(ref)); else cell.bits.writeAddress(null);
+            // INTELLIGENT ROUTING - Fetch permanent referrer from local memory
+            const savedRef = localStorage.getItem('ggg_permanent_referrer');
+            if (savedRef && savedRef.length > 10) {
+                cell.bits.writeAddress(new TonWeb.utils.Address(savedRef));
+            } else {
+                cell.bits.writeAddress(null);
+            }
 
             const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
-            
             const gameId = Date.now();
-            const gameEntry = { id: gameId, time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: 'CHECKING', statusClass: 'status-checking' };
+            const gameEntry = { id: gameId, time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: 'CHECKING', class: 'status-checking' };
             
-            // STRICT 10-ITEM HISTORY LIMITER
             gameHistory.push(gameEntry);
+            // STRICT 10-ITEM LIMITER
             if (gameHistory.length > 10) { gameHistory = gameHistory.slice(-10); }
-            localStorage.setItem('ggg_history_v6', JSON.stringify(gameHistory));
+            localStorage.setItem('ggg_history_v11', JSON.stringify(gameHistory));
             renderHistory();
             
             const beforePending = lastKnownPending;
@@ -260,27 +303,24 @@
             const checkInterval = setInterval(async () => {
                 await loadData(); checks++;
                 if (lastKnownPending > beforePending) {
-                    gameEntry.status = "WIN 🟢"; gameEntry.statusClass = "status-win";
-                    localStorage.setItem('ggg_history_v6', JSON.stringify(gameHistory));
+                    gameEntry.status = "WIN 🟢"; gameEntry.class = "status-win";
+                    localStorage.setItem('ggg_history_v11', JSON.stringify(gameHistory));
                     renderHistory(); clearInterval(checkInterval);
-                } else if (checks >= 10) {
-                    gameEntry.status = "LOSE 🔴"; gameEntry.statusClass = "status-lose";
-                    localStorage.setItem('ggg_history_v6', JSON.stringify(gameHistory));
+                } else if (checks >= 12) {
+                    gameEntry.status = "LOSE 🔴"; gameEntry.class = "status-lose";
+                    localStorage.setItem('ggg_history_v11', JSON.stringify(gameHistory));
                     renderHistory(); clearInterval(checkInterval);
                 }
-            }, 2000);
+            }, 1500);
 
         } catch (e) { alert("Transaction Cancelled"); }
     }
 
     function renderHistory() {
         const el = document.getElementById("historyList");
-        if (gameHistory.length === 0) { el.innerHTML = '<tr><td style="padding:20px; opacity:0.5;">No history yet</td></tr>'; return; }
-        
-        // Final UI defense to render only 10 items maximum
-        const displayList = gameHistory.slice(-10);
-        el.innerHTML = displayList.slice().reverse().map(g => `
-            <tr><td>${g.time}</td><td><b>${g.amount}</b></td><td>${g.side}</td><td><span class="${g.statusClass}">${g.status}</span></td></tr>
+        if (gameHistory.length === 0) { el.innerHTML = '<tr><td colspan="4" style="padding:20px; opacity:0.5;">No bets recorded</td></tr>'; return; }
+        el.innerHTML = gameHistory.slice().reverse().map(g => `
+            <tr><td>${g.time}</td><td><b>${g.amount}</b></td><td>${g.side}</td><td class="${g.class}">${g.status}</td></tr>
         `).join("");
     }
 
@@ -288,14 +328,17 @@
         const cell = new TonWeb.boc.Cell(); cell.bits.writeUint(0, 32); cell.bits.writeString("Claim");
         await sendContractTx(cell);
     }
+
     async function withdrawRef() {
         const cell = new TonWeb.boc.Cell(); cell.bits.writeUint(0, 32); cell.bits.writeString("WithdrawRef");
         await sendContractTx(cell);
     }
+
     async function claimBonus() {
         const cell = new TonWeb.boc.Cell(); cell.bits.writeUint(0, 32); cell.bits.writeString("ClaimBonus");
         await sendContractTx(cell);
     }
+
     async function sendContractTx(cell) {
         try {
             await tonConnectUI.sendTransaction({
