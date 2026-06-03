@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V6.11 - TELEGRAM NATIVE FIX</title>
+    <title>GGG MASTER V7.0 - TELEGRAM NATIVE PREMIUM</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
@@ -36,7 +36,7 @@
         .side-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
         .side-btn { padding: 12px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; font-weight: bold; cursor: pointer; }
         .side-btn.active { background: var(--accent); color: black; border-color: var(--accent); }
-        .bonus-box { background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); }
+        .bonus-box { background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); font-size: 12px; }
         .bonus-box.eligible { border: 2.5px solid var(--green); box-shadow: 0 0 15px var(--green); }
         
         .footer { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); z-index: 1000; }
@@ -87,7 +87,7 @@
     </div>
     <div class="control-panel">
         <div style="font-size:28px; font-weight:900; text-align:center; color:var(--accent);"><span id="display-amt">0.10</span> <small>TON</small></div>
-        <input type="range" min="0.1" max="2.0" step="0.1" value="0.1" class="bet-slider" id="amount-slider" oninput="updateBetUI(this.value)">
+        <input type="range" min="0.1" max="2.1" step="0.1" value="0.1" class="bet-slider" id="amount-slider" oninput="updateBetUI(this.value)">
         <div class="side-btns">
             <button id="lowBtn" class="side-btn active" onclick="setSide(true)">LOW (1-49)</button>
             <button id="highBtn" class="side-btn" onclick="setSide(false)">HIGH (50-98)</button>
@@ -101,7 +101,7 @@
     </div>
     <table class="history-table"><tbody id="historyList"></tbody></table>
 </div>
-    <div id="game2-screen" class="screen">
+<div id="game2-screen" class="screen">
     <div class="control-panel" style="text-align: center;">
         <h3 style="color:var(--blue);">GGG QUAD-CARD</h3>
         <p>This game area is ready for deployment.</p>
@@ -132,16 +132,9 @@
 
         <div style="text-align:left; background:rgba(255,255,255,0.02); padding:15px; border-radius:15px; margin-top:20px; border:1px solid var(--glass);">
             <h4 style="margin:0 0 12px 0; color:var(--accent); text-align:center;"><i class="fas fa-tasks"></i> JOIN OUR COMMUNITY</h4>
-            
-            <a href="https://t.me/TripalG_GoldenGameGlobal" target="_blank" class="social-join-btn" style="background:#0088cc;">
-                <i class="fab fa-telegram-plane"></i> Join Official Channel
-            </a>
-            <a href="https://t.me/GoldenGameGlobal3" target="_blank" class="social-join-btn" style="background:#249ed8;">
-                <i class="fas fa-comments"></i> Join Global Chat
-            </a>
-            <a href="https://t.me/GoldenGameGlobal_official_bot" target="_blank" class="social-join-btn" style="background:var(--btn); border:1px solid var(--glass);">
-                <i class="fas fa-robot"></i> Open Official Bot
-            </a>
+            <a href="https://t.me/TripalG_GoldenGameGlobal" target="_blank" class="social-join-btn" style="background:#0088cc;"><i class="fab fa-telegram-plane"></i> Join Official Channel</a>
+            <a href="https://t.me/GoldenGameGlobal3" target="_blank" class="social-join-btn" style="background:#249ed8;"><i class="fas fa-comments"></i> Join Global Chat</a>
+            <a href="https://t.me/GoldenGameGlobal_official_bot" target="_blank" class="social-join-btn" style="background:var(--btn); border:1px solid var(--glass);"><i class="fas fa-robot"></i> Open Official Bot</a>
         </div>
     </div>
 </div>
@@ -153,16 +146,44 @@
 </div>
 
 <script>
-    // INITIALIZE TELEGRAM WEBAPP
+    // INITIALIZE & EXPAND TELEGRAM APP
+    let tg = null;
     if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand(); // Auto-expand to full screen inside Telegram
+        tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
     }
 
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
+
+    // AUTOMATIC REFERRER EXTRACTOR AND SESSION LOCKER
+    function extractAndLockReferrer() {
+        try {
+            // Priority 1: Check Telegram WebApp Native start_param
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+                const param = tg.initDataUnsafe.start_param.trim();
+                if (TonWeb.utils.Address.isValid(param)) {
+                    localStorage.setItem("ggg_referrer", param);
+                    return param;
+                }
+            }
+            // Priority 2: Web URL Parameters query fallback (?ref=)
+            const params = new URLSearchParams(window.location.search);
+            const webParam = params.get('ref') || params.get('tgWebAppStartParam');
+            if (webParam && TonWeb.utils.Address.isValid(webParam.trim())) {
+                localStorage.setItem("ggg_referrer", webParam.trim());
+                return webParam.trim();
+            }
+        } catch(e) { console.error("Extraction error", e); }
+        // Return existing locked referrer if available
+        return localStorage.getItem("ggg_referrer");
+    }
+
+    // Initialize logic execution
+    extractAndLockReferrer();
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
@@ -178,7 +199,6 @@
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
         document.getElementById(id).classList.add('active-screen');
-        
         document.querySelectorAll('.nav-item').forEach(n => {
             const tabName = n.innerText.toLowerCase().trim();
             if(id === 'lobby-screen' && tabName === 'lobby') n.classList.add('active');
@@ -202,10 +222,8 @@
 
     function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
 
-    // ULTRA NATIVE BOT REFERRAL SYSTEM
     function updateRefUI() {
         if (!userAddress) return;
-        // Native Bot Deep Link Strategy
         document.getElementById("refLink").innerText = "https://t.me/GoldenGameGlobal_official_bot/app?startapp=" + userAddress;
     }
 
@@ -215,17 +233,6 @@
         const btn = document.getElementById("copyBtn");
         btn.innerHTML = '<i class="fas fa-check"></i> COPIED';
         setTimeout(() => { btn.innerText = "COPY LINK"; }, 2000);
-    }
-
-    // TELEGRAM NATIVE PARAMETER EXTRACTOR
-    function getReferrerAddress() {
-        // Option 1: Read from Telegram StartApp Direct Param
-        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.start_param) {
-            return window.Telegram.WebApp.initDataUnsafe.start_param;
-        }
-        // Option 2: Fallback to URL Web Param
-        const params = new URLSearchParams(window.location.search);
-        return params.get('ref') || params.get('tgWebAppStartParam');
     }
 
     async function fetchGetter(method, isIntOnly = false) {
@@ -264,6 +271,7 @@
         document.getElementById('tier4').classList.toggle('eligible', count >= 100);
     }
 
+    // --- CRITICAL PRECISE PAYLOAD ENCODING FOR TACT CONTRACT ---
     async function placeBet() {
         if (!userAddress) return alert("Connect Wallet!");
         const val = document.getElementById('amount-slider').value;
@@ -272,19 +280,28 @@
         try {
             const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.03"));
             const cell = new TonWeb.boc.Cell();
+            
+            // 1. opcode: 0xAAAABBBB (32 bits)
             cell.bits.writeUint(0xAAAABBBB, 32);
+            // 2. sideLow: Bool (1 bit)
             cell.bits.writeBit(isSideLow);
+            // 3. amount: Int as coins (Variable coins size packing)
             cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            const ref = getReferrerAddress();
-            if (ref && ref.trim() !== "") cell.bits.writeAddress(new TonWeb.utils.Address(ref)); else cell.bits.writeAddress(null);
+            // 4. referrer: Address? (Option bit + Address data packing)
+            const ref = localStorage.getItem("ggg_referrer");
+            if (ref && TonWeb.utils.Address.isValid(ref.trim())) {
+                cell.bits.writeBit(true); // Option bit true
+                cell.bits.writeAddress(new TonWeb.utils.Address(ref.trim()));
+            } else {
+                cell.bits.writeBit(false); // Option bit false (null)
+            }
 
             const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
             const gameId = Date.now();
             const gameEntry = { id: gameId, time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: '<span class="status-checking">CHECKING...</span>' };
             
             gameHistory.push(gameEntry); 
-            // 10-ITEM LIMITER FOR NATIVE LIGHTSPEED LOADING
             if (gameHistory.length > 10) gameHistory = gameHistory.slice(-10);
             localStorage.setItem('ggg_history', JSON.stringify(gameHistory));
             renderHistory();
@@ -298,18 +315,15 @@
 
             let checks = 0;
             const checkInterval = setInterval(async () => {
-                await loadData();
-                checks++;
+                await loadData(); checks++;
                 if (lastKnownPending > beforePending) {
                     gameEntry.status = "WIN 🟢";
                     localStorage.setItem('ggg_history', JSON.stringify(gameHistory));
-                    renderHistory();
-                    clearInterval(checkInterval);
+                    renderHistory(); clearInterval(checkInterval);
                 } else if (checks >= 15) {
                     gameEntry.status = "LOSE 🔴";
                     localStorage.setItem('ggg_history', JSON.stringify(gameHistory));
-                    renderHistory();
-                    clearInterval(checkInterval);
+                    renderHistory(); clearInterval(checkInterval);
                 }
             }, 1500);
 
