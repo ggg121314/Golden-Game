@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V6.13 - GOLDEN PREMIUM PRO</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>GGG MASTER V6.1 - GOLDEN PRO</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -28,12 +27,12 @@
         .side-btn.active { background: var(--accent); color: black; border-color: var(--accent); }
         .bonus-box { background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); transition: 0.3s; }
         .bonus-box.eligible { border: 2px solid var(--green); box-shadow: 0 0 10px var(--green); }
-        .social-join-btn { width: 100%; padding: 12px; border-radius: 12px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; text-decoration: none; font-size: 14px; }
         .footer { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); }
         .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #848e9c; font-size: 11px; cursor: pointer; }
         .nav-item.active { color: var(--accent); }
         .history-table { width: 100%; max-width: 400px; border-collapse: collapse; font-size: 12px; margin-top: 20px; background: var(--card); border-radius: 15px; overflow: hidden; }
-        .history-table td { padding: 12px; text-align: center; border-top: 1px solid var(--glass); }
+
+.history-table td { padding: 12px; text-align: center; border-top: 1px solid var(--glass); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -82,6 +81,7 @@
         <tbody id="historyList"><tr><td style="padding:20px; opacity:0.5;">History Loading...</td></tr></tbody>
     </table>
 </div>
+
 <div id="invite-screen" class="screen">
     <div class="control-panel" style="text-align:center;">
         <i class="fas fa-users" style="font-size:40px; color:var(--accent);"></i>
@@ -99,6 +99,7 @@
             <h4 style="margin:0 0 5px 0; color:var(--blue);"><i class="fas fa-info-circle"></i> Bonus Rules</h4>
             <p style="font-size:11px; margin:0; opacity:0.8; line-height:1.4;">Get extra TON by reaching referral milestones. Once you reach 10, 30, 50 or 100 active invites, the tier box will glow green, and you can claim your VIP Bonus!</p>
         </div>
+        
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
             <div class="bonus-box" id="tier1"><b>10 Refs</b><br><small>0.3 TON</small></div>
             <div class="bonus-box" id="tier2"><b>30 Refs</b><br><small>0.6 TON</small></div>
@@ -106,13 +107,6 @@
             <div class="bonus-box" id="tier4"><b>100 Refs</b><br><small>1.5 TON</small></div>
         </div>
         <button onclick="claimBonus()" class="btn-green" style="margin-top:15px; background:var(--blue);">CLAIM VIP BONUS</button>
-
-        <div style="text-align:left; background:rgba(255,255,255,0.02); padding:15px; border-radius:15px; margin-top:20px; border:1px solid var(--glass);">
-            <h4 style="margin:0 0 12px 0; color:var(--accent); text-align:center;"><i class="fas fa-tasks"></i> JOIN OUR COMMUNITY</h4>
-            <a href="https://t.me/TripalG_GoldenGameGlobal" target="_blank" class="social-join-btn" style="background:#0088cc;"><i class="fab fa-telegram-plane"></i> Join Official Channel</a>
-            <a href="https://t.me/GoldenGameGlobal3" target="_blank" class="social-join-btn" style="background:#249ed8;"><i class="fas fa-comments"></i> Join Global Chat</a>
-            <a href="https://t.me/GoldenGameGlobal_official_bot" target="_blank" class="social-join-btn" style="background:var(--btn); border:1px solid var(--glass);"><i class="fas fa-robot"></i> Open Official Bot</a>
-        </div>
     </div>
 </div>
 
@@ -121,43 +115,11 @@
     <div class="nav-item" onclick="showScreen('play-screen')"><i class="fas fa-gamepad"></i>Play</div>
     <div class="nav-item" onclick="showScreen('invite-screen')"><i class="fas fa-gift"></i>Invite</div>
 </div>
-
 <script>
-    // AUTO CONFIGURATION FOR TELEGRAM MINI APP DIRECT STREAM
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
-    }
-
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
-
-    // FIXED LIFETIME PERMANENT STORAGE ATTACHMENT
-    function checkAndStoreReferrer() {
-        try {
-            // Priority 1: Check Telegram Inside Start Parameter Payload (?startapp=)
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.start_param) {
-                const tgRef = window.Telegram.WebApp.initDataUnsafe.start_param.trim();
-                if (TonWeb.utils.Address.isValid(tgRef)) {
-                    localStorage.setItem("ggg_stored_referrer", tgRef);
-                    return tgRef;
-                }
-            }
-            // Priority 2: Fallback Standard Web App Queries URL
-            const params = new URLSearchParams(window.location.search);
-            const urlRef = params.get('ref') || params.get('tgWebAppStartParam');
-            if (urlRef && TonWeb.utils.Address.isValid(urlRef.trim())) {
-                localStorage.setItem("ggg_stored_referrer", urlRef.trim());
-                return urlRef.trim();
-            }
-        } catch(e) { console.error("Referrer capture breakdown:", e); }
-        return localStorage.getItem("ggg_stored_referrer");
-    }
-
-    // Capture immediately on deployment execution
-    checkAndStoreReferrer();
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
@@ -187,9 +149,8 @@
 
     function updateRefUI() {
         if (!userAddress) return;
-        // DIRECT APP TUNNEL LINK: Triggers instant direct navigation inside Telegram Mini App UI
-        const link = "https://t.me/GoldenGameGlobal_official_bot/app?startapp=" + userAddress;
-        document.getElementById("refLink").innerText = link;
+        const link = window.location.origin + window.location.pathname + "?ref=" + userAddress;
+                document.getElementById("refLink").innerText = link;
     }
 
     function copyLink() {
@@ -221,12 +182,14 @@
         const rBal = await fetchGetter("referralBalance");
         const rCountRaw = await fetchGetter("referralCount");
         
+        // Referral Count Logic (Handling Nanoton representation if any)
         const count = Math.floor(parseFloat(rCountRaw) * 1000000000) || 0; 
         
         document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
         document.getElementById('ref-bal').innerText = parseFloat(rBal).toFixed(3);
         document.getElementById('ref-count').innerText = count;
 
+        // Glow Green if eligible for Bonus (Requirement check)
         document.getElementById('tier1').classList.toggle('eligible', count >= 10);
         document.getElementById('tier2').classList.toggle('eligible', count >= 30);
         document.getElementById('tier3').classList.toggle('eligible', count >= 50);
@@ -235,7 +198,6 @@
         lastKnownPending = parseFloat(p);
     }
 
-    // HIGH CONTROLS: 100% WORKING TRANSACTION AND INSTANT SMART SYNC
     async function placeBet() {
         if (!userAddress) return alert("Connect Wallet!");
         const val = document.getElementById('amount-slider').value;
@@ -243,20 +205,16 @@
         const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
         try {
+            // Gas Fee ပြင်ဆင်ချက်: 0.03 TON
             const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.03")); 
             const cell = new TonWeb.boc.Cell();
-            
             cell.bits.writeUint(0xAAAABBBB, 32);
             cell.bits.writeBit(isSideLow);
-            cell.bits.writeCoins(TonWeb.utils.toNano(val)); // Safeguard Line Active
+                        cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            // ATTACH LOCKED REFERRER FROM LIFETIME LOCAL CACHE
-            const activeReferrer = checkAndStoreReferrer();
-            if (activeReferrer && TonWeb.utils.Address.isValid(activeReferrer)) {
-                cell.bits.writeAddress(new TonWeb.utils.Address(activeReferrer)); 
-            } else {
-                cell.bits.writeAddress(null);
-            }
+            const params = new URLSearchParams(window.location.search);
+            const ref = params.get('ref');
+            if (ref) cell.bits.writeAddress(new TonWeb.utils.Address(ref)); else cell.bits.writeAddress(null);
 
             const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
             const gameEntry = { time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: "⏳" };
@@ -265,20 +223,13 @@
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 300,
                 messages: [{ address: CONTRACT_ADDR, amount: total.toString(), payload: payload }]
-            });
+           });
 
-            // Instant Counter Sync (Checks variables every 1.5 seconds for instant updates)
-            let checkCounter = 0;
-            const liveSync = setInterval(async () => {
+            setTimeout(async () => {
                 await loadData();
-                checkCounter++;
-                if (lastKnownPending > beforePending || checkCounter >= 8) {
-                    gameEntry.status = (lastKnownPending > beforePending) ? "WIN 🟢" : "LOSE 🔴";
-                    renderHistory();
-                    clearInterval(liveSync);
-                }
-            }, 1500);
-
+                gameEntry.status = (lastKnownPending > beforePending) ? "WIN 🟢" : "LOSE 🔴";
+                renderHistory();
+            }, 12000);
         } catch (e) { console.error(e); }
     }
 
@@ -314,8 +265,7 @@
         });
     }
 
-    // High frequency execution loop (3 seconds interval) for seamless balance increments
-    setInterval(loadData, 3000);
+    setInterval(loadData, 15000);
     renderHistory();
 </script>
 </body>
