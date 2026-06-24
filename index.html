@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V6.15 - GOLDEN ULTIMATE</title>
-    <!-- Telegram WebApp SDK For In-Bot Seamless Execution -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>GGG MASTER V6.15 - GOLDEN PRO</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -87,7 +85,6 @@
     <div class="control-panel" style="text-align:center;">
         <i class="fas fa-users" style="font-size:40px; color:var(--accent);"></i>
         <h3 style="margin:10px 0;">REFERRAL SYSTEM</h3>
-        <!-- Smart Conditional Referral Display -->
         <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Connect wallet</div>
         <button id="copyBtn" onclick="copyLink()" class="btn-green" style="background:var(--accent); color:black;">COPY LINK</button>
         
@@ -110,10 +107,9 @@
         </div>
         <button onclick="claimBonus()" class="btn-green" style="margin-top:15px; background:var(--blue);">CLAIM VIP BONUS</button>
 
-        <!-- ADDED TRIPLE COMMUNITY BUTTONS (Including New Telegram Bot) -->
         <div style="text-align:left; background:rgba(255,255,255,0.02); padding:15px; border-radius:15px; margin-top:20px; border:1px solid var(--glass);">
             <h4 style="margin:0 0 12px 0; color:var(--accent); text-align:center;"><i class="fas fa-tasks"></i> JOIN OUR COMMUNITY</h4>
-            <a href="https://t.me/GoldenGameGlobal_bot" target="_blank" class="social-join-btn" style="background:var(--accent); color:black;"><i class="fas fa-robot"></i> Join Official Bot</a>
+            <a href="https://t.me/GoldenGameGlobal_bot" target="_blank" class="social-join-btn" style="background:#f1c40f; color:black;"><i class="fas fa-robot"></i> Join Telegram Bot</a>
             <a href="https://t.me/TripalG_GoldenGameGlobal" target="_blank" class="social-join-btn" style="background:#0088cc;"><i class="fab fa-telegram-plane"></i> Join Official Channel</a>
             <a href="https://t.me/GoldenGameGlobal3" target="_blank" class="social-join-btn" style="background:#249ed8;"><i class="fas fa-comments"></i> Join Global Chat</a>
         </div>
@@ -127,40 +123,25 @@
 </div>
 
 <script>
-    // AUTO EXPAND TELEGRAM IF RUNNING INSIDE BOT
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
-    }
-
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
 
-    // ULTIMATE IN-BOT TUNNEL REF CAPTURER (Captures from both Telegram Bot Param and Standard URL Queries)
+    // ENHANCED PERSISTENT REFERRAL LOCK ENGINE
     function checkAndStoreReferrer() {
         try {
-            // Check Telegram Deep Link Parameter first
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.start_param) {
-                const tgRef = window.Telegram.WebApp.initDataUnsafe.start_param.trim();
-                if (TonWeb.utils.Address.isValid(tgRef)) {
-                    localStorage.setItem("ggg_ultimate_ref", tgRef);
-                    return tgRef;
-                }
-            }
-            // Standard URL parameter checkpoint fallback
             const params = new URLSearchParams(window.location.search);
-            const urlRef = params.get('ref') || params.get('tgWebAppStartParam');
+            const urlRef = params.get('ref');
             if (urlRef && TonWeb.utils.Address.isValid(urlRef.trim())) {
-                localStorage.setItem("ggg_ultimate_ref", urlRef.trim());
-                return urlRef.trim();
+                const standardized = new TonWeb.utils.Address(urlRef.trim()).toString(true, true, true);
+                localStorage.setItem("ggg_stored_referrer_v6", standardized);
+                return standardized;
             }
-        } catch(e) { console.error("Referrer lock engine failure:", e); }
-        return localStorage.getItem("ggg_ultimate_ref");
+        } catch(e) { console.error("Referral capture failure:", e); }
+        return localStorage.getItem("ggg_stored_referrer_v6");
     }
 
-    // Execute capture algorithm immediately upon loading
     checkAndStoreReferrer();
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -189,11 +170,9 @@
 
     function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
 
-    // GENERATES TELEGRAM DEEP LINK FOR ULTIMATE IN-APP EXECUTION
     function updateRefUI() {
         if (!userAddress) return;
-        // This forces Telegram to process the payload via the bot directly without loading external browsers
-        const link = "https://t.me/GoldenGameGlobal_bot?start=" + userAddress;
+        const link = window.location.origin + window.location.pathname + "?ref=" + userAddress;
         document.getElementById("refLink").innerText = link;
     }
 
@@ -222,22 +201,24 @@
 
     async function loadData() {
         if (!userAddress) return;
-        const p = await fetchGetter("pendingWin");
-        const rBal = await fetchGetter("referralBalance");
-        const rCountRaw = await fetchGetter("referralCount");
-        
-        const count = Math.floor(parseFloat(rCountRaw) * 1000000000) || 0; 
-        
-        document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
-        document.getElementById('ref-bal').innerText = parseFloat(rBal).toFixed(3);
-        document.getElementById('ref-count').innerText = count;
+        try {
+            const p = await fetchGetter("pendingWin");
+            const rBal = await fetchGetter("referralBalance");
+            const rCountRaw = await fetchGetter("referralCount");
+            
+            const count = Math.floor(parseFloat(rCountRaw) * 1000000000) || 0; 
+            
+            document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
+            document.getElementById('ref-bal').innerText = parseFloat(rBal).toFixed(3);
+            document.getElementById('ref-count').innerText = count;
 
-        document.getElementById('tier1').classList.toggle('eligible', count >= 10);
-        document.getElementById('tier2').classList.toggle('eligible', count >= 30);
-        document.getElementById('tier3').classList.toggle('eligible', count >= 50);
-        document.getElementById('tier4').classList.toggle('eligible', count >= 100);
-        
-        lastKnownPending = parseFloat(p);
+            document.getElementById('tier1').classList.toggle('eligible', count >= 10);
+            document.getElementById('tier2').classList.toggle('eligible', count >= 30);
+            document.getElementById('tier3').classList.toggle('eligible', count >= 50);
+            document.getElementById('tier4').classList.toggle('eligible', count >= 100);
+            
+            lastKnownPending = parseFloat(p);
+        } catch(err) { console.error("Real-time checker sync failure:", err); }
     }
 
     async function placeBet() {
@@ -253,12 +234,15 @@
             cell.bits.writeBit(isSideLow);
             cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            // READ LOCKED REFERRER FOR ABSOLUTE REFERRAL DISTRIBUTION
+            // CRITICAL FIX: RE-ENGINEERED BLOCKCHAIN COMPLIANT REFERRER CELL WRITER
             const activeReferrer = checkAndStoreReferrer();
             if (activeReferrer && TonWeb.utils.Address.isValid(activeReferrer)) {
-                cell.bits.writeAddress(new TonWeb.utils.Address(activeReferrer)); 
+                const targetRefAddr = new TonWeb.utils.Address(activeReferrer);
+                // Tact Contract expects `Maybe Address` layout (1 bit flag prefix + address)
+                cell.bits.writeBit(true); 
+                cell.bits.writeAddress(targetRefAddr);
             } else {
-                cell.bits.writeAddress(null);
+                cell.bits.writeBit(false); // Null case flag
             }
 
             const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
@@ -270,11 +254,18 @@
                 messages: [{ address: CONTRACT_ADDR, amount: total.toString(), payload: payload }]
             });
 
-            setTimeout(async () => {
+            // Acceleration Loop to capture contract outcome faster
+            let checkAttempts = 0;
+            const fastInterval = setInterval(async () => {
                 await loadData();
-                gameEntry.status = (lastKnownPending > beforePending) ? "WIN 🟢" : "LOSE 🔴";
-                renderHistory();
-            }, 12000);
+                checkAttempts++;
+                if (lastKnownPending > beforePending || checkAttempts > 6) {
+                    clearInterval(fastInterval);
+                    gameEntry.status = (lastKnownPending > beforePending) ? "WIN 🟢" : "LOSE 🔴";
+                    renderHistory();
+                }
+            }, 3000);
+
         } catch (e) { console.error(e); }
     }
 
@@ -310,10 +301,9 @@
         });
     }
 
-    // HIGH-FREQUENCY SYNC LOOP: Checks smart contract for referral count updates every 3 seconds
-    setInterval(loadData, 3000);
+    // REAL-TIME BACKGROUND MONITOR (Accelerated to 5 seconds for hyper-responsiveness)
+    setInterval(loadData, 5000);
     renderHistory();
 </script>
 </body>
 </html>
-
