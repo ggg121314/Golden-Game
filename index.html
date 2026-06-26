@@ -5,72 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>GOLDEN GAME GLOBAL - V1.6</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
-    <script src="https://unpkg.com/@tonconnect/ui@2.0.5/dist/tonconnect-ui.min.js"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         :root { 
             --bg: #0b0e11; --card: #161b22; --accent: #f1c40f; 
-            --green: #2ecc71; --blue: #3498db; --text: #eaecef; 
-            --nav: #161b22; --btn: #2b3139; --glass: rgba(255, 255, 255, 0.05); 
+            --green: #2ecc71; --text: #eaecef; --nav: #161b22; 
+            --btn: #2b3139; --glass: rgba(255, 255, 255, 0.05); --blue: #3498db;
         }
-        body { 
-            margin: 0; background: var(--bg); color: var(--text); 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            padding-bottom: 80px; overflow-x: hidden; 
-        }
-        .header { 
-            display: flex; justify-content: space-between; padding: 15px; 
-            background: var(--card); align-items: center; border-bottom: 1px solid var(--glass); 
-            position: sticky; top: 0; z-index: 1000; 
-        }
-        .screen { display: none; flex-direction: column; align-items: center; padding: 15px; width: 100%; box-sizing: border-box; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; overflow-x: hidden; }
+        .header { display: flex; justify-content: space-between; padding: 15px; background: var(--card); align-items: center; border-bottom: 1px solid var(--glass); position: sticky; top: 0; z-index: 1000; }
+        .screen { display: none; flex-direction: column; align-items: center; padding: 15px; width: 100%; box-sizing: border-box; animation: fadeIn 0.3s; }
         .active-screen { display: flex; }
         
-        /* Game Selector Card (Lobby) */
-        .game-selector-card { 
-            background: var(--card); width: 100%; max-width: 400px; border-radius: 20px; 
-            padding: 15px; display: flex; align-items: center; justify-content: space-between; 
-            border: 1px solid rgba(241, 196, 15, 0.3); margin-top: 20px; 
-        }
-        .game-thumb { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; border: 1px solid var(--accent); }
-        
-        /* Play Screen Components */
-        .control-panel { background: var(--card); width: 100%; max-width: 400px; padding: 20px; border-radius: 25px; border: 1px solid var(--glass); box-sizing: border-box; }
+        /* Game UI Components */
+        .control-panel { background: var(--card); width: 100%; max-width: 400px; padding: 20px; border-radius: 25px; border: 1px solid var(--glass); box-sizing: border-box; margin-top: 10px; }
         .slider-box { margin: 20px 0; }
         .bet-slider { width: 100%; height: 8px; border-radius: 5px; background: #334155; outline: none; -webkit-appearance: none; accent-color: var(--accent); }
         .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
         .stat-item { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; border: 1px solid var(--glass); text-align: center; }
-        .stat-item span { font-size: 11px; color: #94a3b8; display: block; margin-bottom: 5px; }
+        .stat-item span { font-size: 10px; color: #94a3b8; display: block; text-transform: uppercase; margin-bottom: 4px; }
         .stat-item b { font-size: 16px; color: var(--accent); }
         
         .side-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .side-btn { padding: 15px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; font-weight: bold; cursor: pointer; }
+        .side-btn { padding: 15px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .side-btn.active { background: var(--accent); color: black; border-color: var(--accent); box-shadow: 0 5px 15px rgba(241,196,15,0.3); }
         
-        .btn-main { width: 100%; padding: 18px; border-radius: 15px; border: none; background: var(--green); color: white; font-weight: 900; font-size: 16px; cursor: pointer; }
-        .btn-blue { width: 100%; padding: 15px; border-radius: 15px; border: none; background: var(--blue); color: white; font-weight: bold; font-size: 15px; cursor: pointer; }
-        .btn-claim { background: #1e293b; color: #fff; border: 1px solid var(--glass); border-radius: 12px; padding: 12px; font-weight: bold; cursor: pointer; width: 100%; }
-
-        /* Referral Grid Layout */
-        .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; width: 100%; max-width: 400px; }
-
-        /* History Table */
-        .history-card { width: 100%; max-width: 400px; margin-top: 25px; background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid var(--glass); }
+        .btn-main { width: 100%; padding: 16px; border-radius: 15px; border: none; background: var(--green); color: white; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3); }
+        .btn-blue { width: 100%; padding: 14px; border-radius: 15px; border: none; background: var(--blue); color: white; font-weight: bold; font-size: 14px; cursor: pointer; }
+        .btn-claim { background: var(--green); color: white; font-weight: bold; border-radius: 12px; border: none; width: 100%; padding: 15px; cursor: pointer; font-size: 14px; }
+        
+        /* Referral & Link UI */
+        .link-box { background: rgba(0,0,0,0.4); border: 1px solid var(--glass); border-radius: 12px; padding: 12px; font-size: 11px; word-break: break-all; text-align: center; color: #848e9c; max-width: 400px; margin-bottom: 15px; }
+        .btn-copy { background: var(--accent); color: black; font-weight: bold; border: none; padding: 12px; border-radius: 12px; width: 100%; max-width: 400px; cursor: pointer; margin-bottom: 20px; font-size: 14px; text-transform: uppercase; }
+        
+        /* History & Table */
+        .history-card { width: 100%; max-width: 400px; margin-top: 20px; background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid var(--glass); }
         .history-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .history-table th { background: rgba(255,255,255,0.03); padding: 12px; color: var(--accent); }
+        .history-table th { background: rgba(255,255,255,0.02); padding: 12px; color: #94a3b8; }
         .history-table td { padding: 12px; text-align: center; border-top: 1px solid var(--glass); }
         
         /* Footer Navigation */
-        .footer { position: fixed; bottom: 0; left:0; width: 100%; height: 65px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #848e9c; font-size: 12px; cursor: pointer; gap: 4px; }
+        .footer { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #848e9c; font-size: 11px; cursor: pointer; gap: 4px; }
         .nav-item.active { color: var(--accent); font-weight: bold; }
         .nav-item i { font-size: 18px; }
+
+        /* Grid Bonus Cards */
+        .bonus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; margin-bottom: 20px; }
+        .bonus-card { background: rgba(255,255,255,0.02); border: 1px solid var(--glass); border-radius: 15px; padding: 12px; text-align: center; }
+        .bonus-card div { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+        .bonus-card span { font-size: 11px; color: #94a3b8; }
 
         .status-win { color: var(--green); font-weight: bold; }
         .status-lose { color: #ff4757; font-weight: bold; }
         .status-waiting { color: var(--accent); animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0.4; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -81,31 +73,21 @@
 </div>
 
 <div id="lobby-screen" class="screen active-screen">
-    <div class="game-selector-card">
-        <div style="display:flex; align-items:center; gap:12px;">
-            <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-thumb">
-            <div>
-                <div style="font-weight:bold; font-size:16px;">LOW HIGH</div>
-                <div style="font-size:11px; color:var(--accent);">Win up to 1.85x</div>
-            </div>
-        </div>
-        <button onclick="showScreen('play-screen')" style="background:var(--green); border:none; padding:10px 20px; border-radius:10px; color:white; font-weight:bold; cursor:pointer;">PLAY</button>
+    <div style="background: var(--card); width: 100%; max-width: 400px; border-radius: 20px; padding: 20px; border: 1px solid rgba(241, 196, 15, 0.2); text-align: center; margin-top: 30px;">
+        <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" style="width: 80px; height: 80px; border-radius: 15px; margin-bottom: 15px;">
+        <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">LOW HIGH GAME</div>
+        <div style="font-size: 13px; color: var(--accent); margin-bottom: 20px;">Multiply your TON up to 1.85x</div>
+        <button class="btn-main" onclick="switchTab('play')">ENTER GAME</button>
     </div>
-    <div style="margin-top:40px; opacity:0.3; font-size:12px;">MORE GAMES COMING SOON...</div>
 </div>
 
 <div id="play-screen" class="screen">
     <div class="control-panel">
-        <div style="text-align:center; margin-bottom:10px; font-size:13px; opacity:0.7;">SELECT STAKE AMOUNT</div>
-        <div style="font-size:28px; font-weight:900; text-align:center; color:var(--accent);"><span id="display-amt">0.10</span> <small style="font-size:14px;">TON</small></div>
-        
+        <div style="font-size: 32px; font-weight: 900; text-align: center; color: var(--accent); margin-bottom: 10px;">
+            <span id="display-amt">0.10</span> <small style="font-size: 16px;">TON</small>
+        </div>
         <div class="slider-box">
             <input type="range" min="0.1" max="2.1" step="0.1" value="0.1" class="bet-slider" id="amount-slider" oninput="updateBetUI(this.value)">
-        </div>
-        
-        <div class="stat-row">
-            <div class="stat-item"><span>EST. PAYOUT</span><b id="est-payout">0.185</b></div>
-            <div class="stat-item"><span>FEE (GAS)</span><b>0.05</b></div>
         </div>
         
         <div class="side-btns">
@@ -113,119 +95,125 @@
             <button id="highBtn" class="side-btn" onclick="setSide(false)">HIGH (50-98)</button>
         </div>
         
-        <button class="btn-main" onclick="placeBet()">PLACE BET NOW</button>
+        <button class="btn-main" onclick="placeBet()">PLACE BET</button>
         
-        <div class="stat-row" style="margin-top:20px;">
-            <div class="stat-item" style="background: rgba(52, 152, 219, 0.1);"><span>PENDING WIN</span><b id="pending" style="color: #3498db;">0.000</b></div>
-            <button class="btn-claim" style="background: var(--green); color: black;" onclick="claimWin()">CLAIM WIN</button>
+        <div class="stat-row" style="margin-top: 15px;">
+            <div class="stat-item" style="background: #11161d;">
+                <span>PENDING WIN</span>
+                <b id="pending-win-display" style="color: #3498db;">0.000</b>
+            </div>
+            <button class="btn-claim" onclick="claimWin()">CLAIM WIN</button>
         </div>
-        <div style="text-align: center; font-size: 11px; opacity: 0.5;">Est. Payout: 1.85x | Gas: 0.05 TON</div>
+        
+        <div style="font-size: 11px; text-align: center; color: #64748b; margin-top: 5px;">
+            Est. Payout: <span id="est-payout">0.185</span> TON | Gas Fee: 0.05 TON
+        </div>
     </div>
 
     <div class="history-card">
         <table class="history-table">
-            <thead><tr><th>TIME</th><th>AMOUNT</th><th>SIDE</th><th>STATUS</th></tr></thead>
-            <tbody id="historyList"><tr><td colspan="4" style="opacity:0.5; padding:20px;">No bets yet</td></tr></tbody>
+            <thead>
+                <tr>
+                    <th>TIME</th>
+                    <th>AMOUNT</th>
+                    <th>SIDE</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody id="historyList">
+                <tr><td colspan="4" style="opacity:0.5; padding:20px;">No transaction history</td></tr>
+            </tbody>
         </table>
     </div>
 </div>
 
 <div id="invite-screen" class="screen">
-    <div class="control-panel" style="text-align: center;">
+    <div style="text-align: center; margin: 15px 0;">
         <i class="fas fa-users" style="font-size: 40px; color: var(--accent); margin-bottom: 10px;"></i>
-        <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px;">REFERRAL SYSTEM</div>
-        
-        <input type="text" id="ref-link-input" readonly style="width:100%; padding:12px; background:rgba(0,0,0,0.3); border:1px solid var(--glass); color:white; border-radius:10px; text-align:center; margin-bottom:10px; font-size:12px;">
-        <button class="btn-main" style="background:var(--accent); color:black; font-weight:bold;" onclick="copyRefLink()">COPY LINK</button>
-        
-        <div class="stat-row">
-            <div class="stat-item"><span>INVITED</span><b id="ref-count">0</b></div>
-            <div class="stat-item"><span>5% EARN</span><b id="ref-balance">0.000</b></div>
+        <div style="font-size: 20px; font-weight: bold;">REFERRAL SYSTEM</div>
+    </div>
+    
+    <div class="link-box" id="ref-link-text">Loading link...</div>
+    <button class="btn-copy" onclick="copyReferralLink()">COPY LINK</button>
+    
+    <div class="stat-row" style="width: 100%; max-width: 400px;">
+        <div class="stat-item">
+            <span>INVITED</span>
+            <b id="ref-count-display">0</b>
         </div>
-        
-        <button class="btn-main" style="margin-bottom:15px;" onclick="withdrawRef()">CLAIM REFERRAL</button>
-        
-        <div style="border-top: 1px solid var(--glass); padding-top:15px; margin-top:15px;">
-            <div style="font-size:13px; font-weight:bold; margin-bottom:10px; color:var(--accent);">VIP MILESTONE BONUSES</div>
-            <div class="ref-grid">
-                <div class="stat-item"><span>10 Refs</span><b>0.3 TON</b></div>
-                <div class="stat-item"><span>30 Refs</span><b>0.6 TON</b></div>
-                <div class="stat-item"><span>50 Refs</span><b>0.6 TON</b></div>
-                <div class="stat-item"><span>100 Refs</span><b>1.5 TON</b></div>
-            </div>
-            <button class="btn-blue" onclick="claimVIPBonus()">CLAIM VIP BONUS</button>
+        <div class="stat-item">
+            <span>5% EARN</span>
+            <b id="ref-balance-display">0.000</b>
         </div>
     </div>
+    
+    <button class="btn-main" style="max-width: 400px; margin-bottom: 25px;" onclick="withdrawRef()">CLAIM REFERRAL</button>
+    
+    <div class="bonus-grid">
+        <div class="bonus-card"><div>10 Refs</div><span>0.3 TON</span></div>
+        <div class="bonus-card"><div>30 Refs</div><span>0.6 TON</span></div>
+        <div class="bonus-card"><div>50 Refs</div><span>0.6 TON</span></div>
+        <div class="bonus-card"><div>100 Refs</div><span>1.5 TON</span></div>
+    </div>
+    
+    <button class="btn-blue" style="max-width: 400px;" onclick="claimVipBonus()">CLAIM VIP BONUS</button>
 </div>
 
 <div class="footer">
-    <div class="nav-item active" id="nav-lobby" onclick="showScreen('lobby-screen')"><i class="fas fa-home"></i>Lobby</div>
-    <div class="nav-item" id="nav-play" onclick="showScreen('play-screen')"><i class="fas fa-gamepad"></i>Play</div>
-    <div class="nav-item" id="nav-invite" onclick="showScreen('invite-screen')"><i class="fas fa-gift"></i>Invite</div>
+    <div class="nav-item active" id="nav-lobby" onclick="switchTab('lobby')">
+        <i class="fas fa-home"></i> Lobby
+    </div>
+    <div class="nav-item" id="nav-play" onclick="switchTab('play')">
+        <i class="fas fa-gamepad"></i> Play
+    </div>
+    <div class="nav-item" id="nav-invite" onclick="switchTab('invite')">
+        <i class="fas fa-gift"></i> Invite
+    </div>
 </div>
 
 <script>
     // --- Configuration ---
-    const CONTRACT_ADDR = "EQA1...Dmnn"; // သင်၏ Contract Address အမှန်ကို ပြောင်းထည့်ပါ
-    const API = "https://toncenter.com/api/v2"; 
+    const CONTRACT_ADDR = "UQASq7Wia19g8O4gP8e8t8W8-O8t8W8O8t8W8O8t8W8O8S1Z"; // လူကြီးမင်း၏ Contract Address အစစ်ကို ဤနေရာတွင်ထည့်ပါ
+    const API = "https://toncenter.com/api/v2"; // Mainnet API
     
-    let tonConnectUI;
     let userAddress = null;
     let isSideLow = true;
     let gameHistory = [];
-    let lastKnownPending = 0;
+    const tonWeb = new TonWeb();
 
-    // --- Referral Handling (Persistent Memory) ---
-    function handleReferral() {
-        const params = new URLSearchParams(window.location.search);
-        const refParam = params.get('ref');
-        if (refParam) {
-            localStorage.setItem('ggg_referrer', refParam);
+    // --- TonConnect UI Initialization ---
+    // Fix: redirect: 'none' ထည့်သွင်းပြီး google page သို့ လမ်းလွဲမထွက်အောင် ကာကွယ်ခြင်း
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: 'https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json',
+        buttonRootId: 'wallet-container',
+        actionsConfiguration: {
+            modals: 'from-meta-mask',
+            returnStrategy: 'none' 
         }
-    }
-    handleReferral();
+    });
 
-    // --- Initialize TonConnect UI ---
-    async function initTonConnect() {
-        tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json',
-            buttonRootId: 'wallet-container'
-        });
+    // Handle Connection Wallet
+    tonConnectUI.onStatusChange(wallet => {
+        if (wallet) {
+            userAddress = wallet.account.address;
+            updateReferralLink();
+            loadContractData();
+        } else {
+            userAddress = null;
+            document.getElementById('ref-link-text').innerText = "Please connect wallet first";
+        }
+    });
 
-        // ⚠️ Telegram WebApp အတွင်း အပြင်ထွက်မသွားစေရန်အရေးကြီးဆုံးသတ်မှတ်ချက်
-        tonConnectUI.uiOptions = {
-            twaReturnUrl: 'https://t.me/GoldenGameGlobal_official_bot' 
-        };
-
-        tonConnectUI.onStatusChange(wallet => {
-            if (wallet) {
-                userAddress = wallet.account.address;
-                const rawAddr = tonConnectUI.account.address;
-                const tonweb = new TonWeb();
-                const addrObj = new tonweb.utils.Address(rawAddr);
-                const nonBounceableAddress = addrObj.toString(true, true, false); // UQ... format
-                
-                document.getElementById('ref-link-input').value = `https://ggg121314.github.io/Golden-Game/?ref=${nonBounceableAddress}`;
-                loadData();
-            } else {
-                userAddress = null;
-                document.getElementById('ref-link-input').value = "Connect wallet first";
-            }
-        });
-    }
-    window.addEventListener('DOMContentLoaded', initTonConnect);
-
-    // --- UI Navigation ---
-    function showScreen(screenId) {
+    // --- Tab Switcher ---
+    function switchTab(tabName) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-        document.getElementById(screenId).classList.add('active-screen');
-        
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        if(screenId === 'lobby-screen') document.getElementById('nav-lobby').classList.add('active');
-        if(screenId === 'play-screen') document.getElementById('nav-play').classList.add('active');
-        if(screenId === 'invite-screen') document.getElementById('nav-invite').classList.add('active');
+        
+        document.getElementById(`${tabName}-screen`).classList.add('active-screen');
+        document.getElementById(`nav-${tabName}`).classList.add('active');
     }
 
+    // --- UI Logic ---
     function updateBetUI(val) {
         document.getElementById('display-amt').innerText = parseFloat(val).toFixed(2);
         document.getElementById('est-payout').innerText = (parseFloat(val) * 1.85).toFixed(3);
@@ -237,49 +225,166 @@
         document.getElementById('highBtn').classList.toggle('active', !low);
     }
 
-    // --- Contract Interactions (Get Methods) ---
+    // --- Referral Handling ---
+    function updateReferralLink() {
+        if (!userAddress) return;
+        const rawAddr = new TonWeb.utils.Address(userAddress).toString(true, true, true);
+        const link = `https://ggg121314.github.io/Golden-Game/?ref=${rawAddr}`;
+        document.getElementById('ref-link-text').innerText = link;
+    }
+
+    function copyReferralLink() {
+        const text = document.getElementById('ref-link-text').innerText;
+        navigator.clipboard.writeText(text).then(() => alert("Referral link copied!"));
+    }
+
+    function getReferrerFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        const ref = params.get('ref');
+        if (ref) {
+            try { return new TonWeb.utils.Address(ref); } catch(e) { return null; }
+        }
+        return null;
+    }
+
+    // --- Read Smart Contract State (Get Methods) ---
     async function fetchGetter(method) {
-        if (!userAddress) return null;
+        if (!userAddress) return "0";
         try {
-            const tonweb = new TonWeb();
-            const addr = new tonweb.utils.Address(userAddress);
+            const addr = new TonWeb.utils.Address(userAddress);
             const cell = new TonWeb.boc.Cell();
             cell.bits.writeAddress(addr);
             const b64 = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
             
             const r = await fetch(`${API}/runGetMethod`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ "address": CONTRACT_ADDR, "method": method, "stack": [["tvm.Slice", b64]] })
             });
             const d = await r.json();
-            return d.result?.stack?.[0]?.[1] ? TonWeb.utils.fromNano(BigInt(d.result.stack[0][1]).toString()) : "0";
-        } catch(e) { return null; }
+            if(d.result?.stack?.[0]?.[1]) {
+                return TonWeb.utils.fromNano(BigInt(d.result.stack[0][1]).toString());
+            }
+            return "0";
+        } catch(e) { 
+            console.error(e);
+            return "0"; 
+        }
     }
 
-    async function fetchRefCount() {
-        if (!userAddress) return null;
+    async function loadContractData() {
+        if (!userAddress) return;
+        const pending = await fetchGetter("pendingWin");
+        const refBal = await fetchGetter("referralBalance");
+        const refCount = await fetchGetter("referralCount");
+
+        document.getElementById('pending-win-display').innerText = parseFloat(pending).toFixed(3);
+        document.getElementById('ref-balance-display').innerText = parseFloat(refBal).toFixed(3);
+        document.getElementById('ref-count-display').innerText = parseInt(refCount) || 0;
+    }
+
+    // --- Write Transactions (Place Bet & Claims) ---
+    async function placeBet() {
+        if (!userAddress) return alert("Please connect wallet!");
+        
+        const val = document.getElementById('amount-slider').value; // လောင်းကြေး (ဥပမာ- 0.1)
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const betId = Date.now();
+        
         try {
-            const tonweb = new TonWeb();
-            const addr = new tonweb.utils.Address(userAddress);
+            // Tact Contract Check အရ ပေးပို့ရမည့် Total TON (Value) = Bet Amount + Gas Fee (0.05)
+            const betNano = TonWeb.utils.toNano(val);
+            const gasNano = TonWeb.utils.toNano("0.05");
+            const totalAmountNano = betNano.add(gasNano);
+
+            // Payload ဆောက်လုပ်ခြင်း (Message 0xAAAABBBB)
             const cell = new TonWeb.boc.Cell();
-            cell.bits.writeAddress(addr);
-            const b64 = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
-            const r = await fetch(`${API}/runGetMethod`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ "address": CONTRACT_ADDR, "method": "referralCount", "stack": [["tvm.Slice", b64]] })
+            cell.bits.writeUint(0xAAAABBBB, 32); // Op Code
+            cell.bits.writeBit(isSideLow);        // sideLow: Bool
+            cell.bits.writeCoins(betNano);       // amount: Int as coins (Tact Code အရ အရေးကြီးဆုံးအချက် ဖြစ်သည်)
+            
+            // Referrer Address ထည့်သွင်းခြင်း
+            const referrer = getReferrerFromURL();
+            if (referrer) {
+                cell.bits.writeBit(true); // Maybe standard for Address?
+                cell.bits.writeAddress(referrer);
+            } else {
+                cell.bits.writeBit(false); // Null Address
+            }
+
+            const payloadBase64 = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
+            
+            // UI တွင် ယာယီ Waiting အခြေအနေ ပြရန်
+            const gameEntry = { id: betId, time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: "WAITING", statusClass: "status-waiting" };
+            gameHistory.push(gameEntry); 
+            renderHistory();
+
+            // Transaction ပေးပို့ခြင်း
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now() / 1000) + 300,
+                messages: [{ 
+                    address: CONTRACT_ADDR, 
+                    amount: totalAmountNano.toString(), // Bet Amount + Gas Total Value
+                    payload: payloadBase64 
+                }]
             });
-            const d = await r.json();
-            return d.result?.stack?.[0]?.[1] ? BigInt(d.result.stack[0][1]).toString() : "0";
-        } catch(e) { return null; }
+
+            // ၁၅ စက္ကန့်အကြာတွင် Data ပြန်ဆွဲပြီး Status စစ်ရန်
+            setTimeout(async () => {
+                await loadContractData();
+                // ဤနေရာတွင် Event Listening သို့မဟုတ် နောက်ဆက်တွဲ သမိုင်းကြောင်း Logic များ ထပ်ထည့်နိုင်ပါသည်
+                gameEntry.status = "CHECK WALLET"; 
+                gameEntry.statusClass = "";
+                renderHistory();
+            }, 15000);
+
+        } catch (e) { 
+            console.error(e);
+            gameHistory = gameHistory.filter(g => g.id !== betId); 
+            renderHistory(); 
+        }
     }
 
-    async function loadData() {
-        const p = await fetchGetter("pendingWin");
-        const r = await fetchGetter("referralBalance");
-        const c = await fetchRefCount();
-        if (p !== null) { lastKnownPending = parseFloat(p); document.getElementById('pending').innerText = lastKnownPending.toFixed(3); }
-        if (r !== null) document.getElementById('ref-balance').innerText = parseFloat(r).toFixed(3);
-        if (c !== null) document.getElementById('ref-count').innerText = c;
+    async function claimWin() {
+        if (!userAddress) return alert("Connect Wallet!");
+        try {
+            const cell = new TonWeb.boc.Cell();
+            cell.bits.writeUint(0, 32); 
+            cell.bits.writeString("Claim"); // Text Comment Message
+            
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now() / 1000) + 300,
+                messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
+            });
+        } catch(e) { console.error(e); }
+    }
+
+    async function withdrawRef() {
+        if (!userAddress) return alert("Connect Wallet!");
+        try {
+            const cell = new TonWeb.boc.Cell();
+            cell.bits.writeUint(0, 32); 
+            cell.bits.writeString("WithdrawRef");
+            
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now() / 1000) + 300,
+                messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
+            });
+        } catch(e) { console.error(e); }
+    }
+
+    async function claimVipBonus() {
+        if (!userAddress) return alert("Connect Wallet!");
+        try {
+            const cell = new TonWeb.boc.Cell();
+            cell.bits.writeUint(0, 32); 
+            cell.bits.writeString("ClaimBonus");
+            
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now() / 1000) + 300,
+                messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
+            });
+        } catch(e) { console.error(e); }
     }
 
     function renderHistory() {
@@ -290,88 +395,8 @@
         `).join("");
     }
 
-    // --- Betting Core (Tact V6 Layer) ---
-    async function placeBet() {
-        if (!userAddress) return alert("Please connect wallet!");
-        const val = document.getElementById('amount-slider').value;
-        const beforePending = lastKnownPending;
-        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const betId = Date.now();
-        
-        try {
-            const betAmountNano = TonWeb.utils.toNano(val);
-            const gasFeeNano = TonWeb.utils.toNano("0.05");
-            const totalAmount = betAmountNano.add(gasFeeNano);
-
-            // Tact Smart Contract Message Builder
-            const cell = new TonWeb.boc.Cell();
-            cell.bits.writeUint(0xAAAABBBB, 32); // Opcode Bet
-            cell.bits.writeBit(isSideLow);       // sideLow: Bool
-            cell.bits.writeCoins(betAmountNano); // amount: Int as coins (Tact Requirement FIXED)
-
-            // Referrer Resolution (From LocalStorage)
-            const savedRef = localStorage.getItem('ggg_referrer');
-            if (savedRef) { 
-                cell.bits.writeBit(true); 
-                cell.bits.writeAddress(new TonWeb.utils.Address(savedRef)); 
-            } else { 
-                cell.bits.writeBit(false); 
-            }
-
-            const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
-            const gameEntry = { id: betId, time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: "WAITING", statusClass: "status-waiting" };
-            gameHistory.push(gameEntry); renderHistory();
-
-            await tonConnectUI.sendTransaction({
-                validUntil: Math.floor(Date.now() / 1000) + 300,
-                messages: [{ address: CONTRACT_ADDR, amount: totalAmount.toString(), payload: payload }]
-            });
-
-            setTimeout(async () => {
-                await loadData();
-                if (lastKnownPending > beforePending) { gameEntry.status = "WIN 🟢"; gameEntry.statusClass = "status-win"; }
-                else { gameEntry.status = "LOSE 🔴"; gameEntry.statusClass = "status-lose"; }
-                renderHistory();
-            }, 14000);
-        } catch (e) { gameHistory = gameHistory.filter(g => g.id !== betId); renderHistory(); }
-    }
-
-    // --- Claims System ---
-    async function claimWin() {
-        const cell = new TonWeb.boc.Cell();
-        cell.bits.writeUint(0, 32); cell.bits.writeString("Claim");
-        await tonConnectUI.sendTransaction({
-            validUntil: Math.floor(Date.now() / 1000) + 300,
-            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
-        });
-    }
-
-    async function withdrawRef() {
-        const cell = new TonWeb.boc.Cell();
-        cell.bits.writeUint(0, 32); cell.bits.writeString("WithdrawRef");
-        await tonConnectUI.sendTransaction({
-            validUntil: Math.floor(Date.now() / 1000) + 300,
-            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
-        });
-    }
-
-    async function claimVIPBonus() {
-        const cell = new TonWeb.boc.Cell();
-        cell.bits.writeUint(0, 32); cell.bits.writeString("ClaimBonus");
-        await tonConnectUI.sendTransaction({
-            validUntil: Math.floor(Date.now() / 1000) + 300,
-            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
-        });
-    }
-
-    function copyRefLink() {
-        const copyText = document.getElementById("ref-link-input");
-        copyText.select(); copyText.setSelectionRange(0, 99999);
-        navigator.clipboard.writeText(copyText.value);
-        alert("Referral link copied!");
-    }
-
-    setInterval(loadData, 15000);
+    // Auto Refresh Data Every 20 Seconds
+    setInterval(loadContractData, 20000);
 </script>
 </body>
 </html>
