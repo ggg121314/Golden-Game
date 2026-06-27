@@ -3,129 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V1.16 - GOLDEN LEGACY PRO</title>
+    <title>GGG MASTER V6.1 - GOLDEN PRO</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --bg: #0b0e11; --card: #161b22; --accent: #f1c40f; --green: #2ecc71; --blue: #3498db; --text: #eaecef; --nav: #161b22; --btn: #2b3139; --glass: rgba(255, 255, 255, 0.05); }
         .light-mode { --bg: #f5f7f9; --card: #ffffff; --accent: #d4af37; --green: #27ae60; --blue: #2980b9; --text: #1e2329; --nav: #ffffff; --btn: #e4e6eb; --glass: rgba(0, 0, 0, 0.05); }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 80px; transition: 0.3s; overflow-x: hidden; }
-        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: url('https://i.ibb.co/FbrzsJ9J/Screenshot-2026-04-10-17-14-06-636-com-google-android-googlequicksearchbox-edit.jpg') center/cover no-repeat; opacity: 0.15; filter: grayscale(50%); }
-        .header { display: flex; justify-content: space-between; padding: 15px; background: var(--card); align-items: center; border-bottom: 1px solid var(--glass); position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; transition: 0.3s; overflow-x: hidden; }
+        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: url('https://i.ibb.co/FbrzsJ9J/Screenshot-2026-04-10-17-14-06-636.jpg') center/cover no-repeat; opacity: 0.15; }
+        .header { display: flex; justify-content: space-between; padding: 15px; background: var(--card); align-items: center; border-bottom: 1px solid var(--glass); position: sticky; top: 0; z-index: 1000; }
         .screen { display: none; flex-direction: column; align-items: center; padding: 15px; width: 100%; box-sizing: border-box; animation: fadeIn 0.4s; }
         .active-screen { display: flex; }
-        .game-selector-card { background: var(--card); width: 100%; max-width: 400px; border-radius: 20px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(241, 196, 15, 0.3); margin-top: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-        .game-thumb { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; border: 1px solid var(--accent); }
-        .visual-area { width: 100%; max-width: 400px; height: 220px; border-radius: 20px; overflow: hidden; margin-bottom: 20px; border: 2px solid var(--accent); box-shadow: 0 0 20px rgba(241, 196, 15, 0.2); }
+        .visual-area { width: 100%; max-width: 400px; height: 180px; border-radius: 20px; overflow: hidden; margin-bottom: 15px; border: 2px solid var(--accent); }
         .game-bg-img { width: 100%; height: 100%; object-fit: cover; }
         .control-panel { background: var(--card); width: 100%; max-width: 400px; padding: 20px; border-radius: 25px; border: 1px solid var(--glass); box-sizing: border-box; }
-        .slider-box { margin: 20px 0; }
+        .stat-item-blue { background: rgba(52, 152, 219, 0.15); padding: 10px; border-radius: 12px; border: 1px solid var(--blue); text-align: center; }
+        .stat-item-blue b { color: var(--blue); font-size: 16px; }
+        .btn-green { width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--green); color: white; font-weight: bold; cursor: pointer; }
         .bet-slider { width: 100%; height: 8px; border-radius: 5px; background: #334155; outline: none; -webkit-appearance: none; accent-color: var(--accent); }
-        .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-        .stat-item { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; border: 1px solid var(--glass); text-align: center; }
-        .stat-item span { font-size: 10px; color: #94a3b8; display: block; text-transform: uppercase; }
-        .stat-item b { font-size: 16px; color: var(--accent); }
-        .side-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .side-btn { padding: 15px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .side-btn.active { background: var(--accent); color: black; border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(241,196,15,0.3); }
-        .btn-main { width: 100%; padding: 18px; border-radius: 15px; border: none; background: var(--green); color: white; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3); }
-        .history-card { width: 100%; max-width: 400px; margin-top: 25px; background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid var(--glass); }
-        .history-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .history-table th { background: rgba(255,255,255,0.03); padding: 12px; text-align: center; color: var(--accent); }
-        .history-table td { padding: 12px; text-align: center; border-top: 1px solid var(--glass); }
-        .footer { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
-        .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #848e9c; font-size: 12px; cursor: pointer; gap: 5px; }
-        .nav-item.active { color: var(--accent); font-weight: bold; }
-        .nav-item i { font-size: 20px; }
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; padding:20px; }
-        .modal-content { background: var(--card); padding: 25px; border-radius: 25px; border: 1px solid var(--accent); max-width: 400px; text-align: left; max-height: 80vh; overflow-y: auto; }
-        
-        /* Premium Bonus Box & Social Styling */
+        .side-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
+        .side-btn { padding: 12px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; font-weight: bold; cursor: pointer; }
+        .side-btn.active { background: var(--accent); color: black; border-color: var(--accent); }
         .bonus-box { background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); transition: 0.3s; }
         .bonus-box.eligible { border: 2px solid var(--green); box-shadow: 0 0 10px var(--green); }
-        .social-join-btn { width: 100%; padding: 12px; border-radius: 12px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; text-decoration: none; font-size: 14px; box-sizing: border-box; }
-        
-        .status-win { color: var(--green); font-weight: bold; }
-        .status-lose { color: #ff4757; font-weight: bold; }
-        .status-waiting { color: var(--accent); animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0.4; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .footer { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #848e9c; font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: var(--accent); }
+        .history-table { width: 100%; max-width: 400px; border-collapse: collapse; font-size: 12px; margin-top: 20px; background: var(--card); border-radius: 15px; overflow: hidden; }
+        .history-table td { padding: 12px; text-align: center; border-top: 1px solid var(--glass); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 <div class="bg-overlay"></div>
-<div id="info-modal" class="modal">
-    <div class="modal-content">
-        <h3 style="color:var(--accent); text-align:center;">GGG MASTER PROTOCOL</h3>
-        <div style="font-size: 13px; line-height: 1.6; opacity: 0.9;">
-            <p><b>🎮 HOW TO PLAY:</b> Select your stake using the slider. Choose <b>LOW (1-49)</b> or <b>HIGH (50-98)</b>. If the on-chain result matches your choice, you win!</p>
-            <p><b>💰 REWARD SYSTEM:</b> Winning bets grant a <b>1.85x</b> payout. All payouts are secured by the Smart Contract.</p>
-            <p><b>🔗 REFERRAL SYSTEM:</b> Share your link and earn <b>5% instant commission</b> from every winning bet made by your referrals. Create your own passive income stream!</p>
-            <p><b>🛡️ SECURITY & FAIRNESS:</b> Decentralized on TON Blockchain. Outcomes are determined by cryptographic hashes, making it 100% tamper-proof and transparent.</p>
-        </div>
-        <button class="btn-main" style="background:var(--accent); color:black; margin-top:15px;" onclick="closeModal()">I UNDERSTAND</button>
-    </div>
-</div>
-
 <div class="header">
     <div id="wallet"></div>
-    <div onclick="toggleMode()" style="cursor:pointer; font-size: 20px; color: var(--accent); padding: 5px;">
-        <i class="fas fa-moon" id="theme-icon"></i>
-    </div>
+    <div onclick="toggleMode()" style="color:var(--accent); font-size:20px; cursor:pointer;"><i class="fas fa-moon" id="theme-icon"></i></div>
 </div>
 
 <div id="lobby-screen" class="screen active-screen">
-    <div class="game-selector-card">
-        <div style="display:flex; align-items:center; gap:12px;">
-            <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-thumb">
-            <div>
-                <div style="font-weight:bold; font-size:16px;">LOW HIGH</div>
-                <div style="font-size:11px; color:var(--accent);">Win up to 1.85x</div>
-            </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:15px;">
-            <i class="far fa-file-alt" style="font-size:24px; color:var(--accent); cursor:pointer;" onclick="openModal()"></i>
-            <button onclick="showScreen('play-screen')" style="background:var(--green); border:none; padding:10px 20px; border-radius:10px; color:white; font-weight:bold; cursor:pointer;">PLAY</button>
-        </div>
+    <div class="visual-area" style="height: 200px;">
+        <img src="https://i.ibb.co/HfV9cGL0/IMG-20260407-222820.png" class="game-bg-img">
     </div>
-    <div style="margin-top:40px; opacity:0.3; font-size:12px;">MORE GAMES COMING SOON...</div>
+    <div class="control-panel" style="text-align: center;">
+        <h2 style="margin: 0; color: var(--accent);">GOLDEN LOW-HIGH</h2>
+        <p style="font-size: 12px; opacity: 0.7;">Fair Play & High Rewards on TON</p>
+        <button class="btn-green" style="font-size:16px; padding:15px;" onclick="showScreen('play-screen')">PLAY NOW</button>
+    </div>
 </div>
 
 <div id="play-screen" class="screen">
     <div class="visual-area">
-        <img src="https://i.ibb.co/HfV9cGL0/IMG-20260407-222820.png" class="game-bg-img">
+        <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-bg-img">
     </div>
+
     <div class="control-panel">
-        <div style="text-align:center; margin-bottom:10px; font-size:13px; opacity:0.7;">SELECT STAKE AMOUNT</div>
-        <div style="font-size:28px; font-weight:900; text-align:center; color:var(--accent);"><span id="display-amt">0.10</span> <small style="font-size:14px;">TON</small></div>
-        <div class="slider-box">
-            <input type="range" min="0.1" max="2.0" step="0.1" value="0.1" class="bet-slider" id="amount-slider" oninput="updateBetUI(this.value)">
-        </div>
-        <div class="stat-row">
-            <div class="stat-item"><span>EST. PAYOUT</span><b id="est-payout">0.185</b></div>
-            <div class="stat-item"><span>FEE (GAS)</span><b>0.05</b></div>
-        </div>
+        <div style="font-size:28px; font-weight:900; text-align:center; color:var(--accent);"><span id="display-amt">0.10</span> <small>TON</small></div>
+        <input type="range" min="0.1" max="2.0" step="0.1" value="0.1" class="bet-slider" id="amount-slider" oninput="updateBetUI(this.value)">
+        
         <div class="side-btns">
             <button id="lowBtn" class="side-btn active" onclick="setSide(true)">LOW (1-49)</button>
             <button id="highBtn" class="side-btn" onclick="setSide(false)">HIGH (50-98)</button>
         </div>
-        <button class="btn-main" onclick="placeBet()">PLACE BET NOW</button>
-        <div class="stat-row" style="margin-top:20px;">
-            <div class="stat-item"><span>PENDING</span><b id="pending">0.00</b></div>
-            <div class="stat-item"><span>REFERRAL</span><b id="ref">0.00</b></div>
+
+        <button class="btn-green" style="height:55px; font-size:18px;" onclick="placeBet()">PLACE BET</button>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
+            <div class="stat-item-blue"><span>PENDING WIN</span><br><b id="pending">0.00</b></div>
+            <button onclick="claimWin()" class="btn-green" style="background:var(--green);">CLAIM WIN</button>
         </div>
-        <div style="display:flex; gap:10px;">
-            <button onclick="claimWin()" style="flex:1; background:var(--btn); color:var(--text); border:none; padding:12px; border-radius:10px; font-size:12px; font-weight:bold; cursor:pointer;">WITHDRAW WIN</button>
-            <button onclick="withdrawRef()" style="flex:1; background:var(--btn); color:var(--text); border:none; padding:12px; border-radius:10px; font-size:12px; font-weight:bold; cursor:pointer;">WITHDRAW REF</button>
-        </div>
+        <div style="text-align:center; font-size:10px; margin-top:10px; opacity:0.6;">Est. Payout: <span id="est-payout">0.185</span> | Gas: 0.03 TON</div>
     </div>
-    <div class="history-card">
-        <table class="history-table">
-            <thead><tr><th>TIME</th><th>AMOUNT</th><th>SIDE</th><th>STATUS</th></tr></thead>
-            <tbody id="historyList"><tr><td colspan="4" style="opacity:0.5; padding:20px;">No bets yet</td></tr></tbody>
-        </table>
-    </div>
+
+    <table class="history-table">
+        <tbody id="historyList"><tr><td style="padding:20px; opacity:0.5;">History Loading...</td></tr></tbody>
+    </table>
 </div>
 
 <div id="invite-screen" class="screen">
@@ -133,28 +87,26 @@
         <i class="fas fa-users" style="font-size:40px; color:var(--accent);"></i>
         <h3 style="margin:10px 0;">REFERRAL SYSTEM</h3>
         <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Connect wallet</div>
-        <button id="copyBtn" onclick="copyLink()" class="btn-main" style="background:var(--accent); color:black; padding:12px;">COPY LINK</button>
+        <button id="copyBtn" onclick="copyLink()" class="btn-green" style="background:var(--accent); color:black;">COPY LINK</button>
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
-            <div class="stat-item"><span>INVITED</span><b id="ref-count">0</b></div>
-            <div class="stat-item"><span>5% EARN</span><b id="ref-bal">0.00</b></div>
+            <div class="stat-item-blue"><span>INVITED</span><br><b id="ref-count">0</b></div>
+            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.00</b></div>
         </div>
-        
+        <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px;">CLAIM REFERRAL</button>
+
+        <div style="text-align:left; background:rgba(52,152,219,0.1); padding:15px; border-radius:15px; margin-top:20px; border:1px solid var(--blue);">
+            <h4 style="margin:0 0 5px 0; color:var(--blue);"><i class="fas fa-info-circle"></i> Bonus Rules</h4>
+            <p style="font-size:11px; margin:0; opacity:0.8; line-height:1.4;">Get extra TON by reaching referral milestones. Once you reach 10, 30, 50 or 100 active invites, the tier box will glow green, and you can claim your VIP Bonus!</p>
+        </div>
+
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
             <div class="bonus-box" id="tier1"><b>10 Refs</b><br><small>0.3 TON</small></div>
             <div class="bonus-box" id="tier2"><b>30 Refs</b><br><small>0.6 TON</small></div>
             <div class="bonus-box" id="tier3"><b>50 Refs</b><br><small>0.6 TON</small></div>
             <div class="bonus-box" id="tier4"><b>100 Refs</b><br><small>1.5 TON</small></div>
         </div>
-        <button onclick="claimBonus()" class="btn-main" style="margin-top:15px; background:var(--blue);">CLAIM VIP BONUS</button>
-
-        <!-- Premium Social Communities Section -->
-        <div style="text-align:left; background:rgba(255,255,255,0.02); padding:15px; border-radius:15px; margin-top:20px; border:1px solid var(--glass);">
-            <h4 style="margin:0 0 12px 0; color:var(--accent); text-align:center;"><i class="fas fa-tasks"></i> JOIN OUR COMMUNITY</h4>
-            <a href="https://t.me/GoldenGameGlobal_bot" target="_blank" class="social-join-btn" style="background:#f1c40f; color:black;"><i class="fas fa-robot"></i> Join Telegram Bot</a>
-            <a href="https://t.me/TripalG_GoldenGameGlobal" target="_blank" class="social-join-btn" style="background:#0088cc;"><i class="fab fa-telegram-plane"></i> Join Official Channel</a>
-            <a href="https://t.me/GoldenGameGlobal3" target="_blank" class="social-join-btn" style="background:#249ed8;"><i class="fas fa-comments"></i> Join Global Chat</a>
-        </div>
+        <button onclick="claimBonus()" class="btn-green" style="margin-top:15px; background:var(--blue);">CLAIM VIP BONUS</button>
     </div>
 </div>
 
@@ -163,34 +115,22 @@
     <div class="nav-item" onclick="showScreen('play-screen')"><i class="fas fa-gamepad"></i>Play</div>
     <div class="nav-item" onclick="showScreen('invite-screen')"><i class="fas fa-gift"></i>Invite</div>
 </div>
+
 <script>
+    // Initialize Telegram WebApp
+    if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand(); // Screen ကို အပြည့်ချဲ့ပေးရန်
+    }
+
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
 
-    // Permanent Referral Storage & Locking Engine
-    function checkAndStoreReferrer() {
-        try {
-            const params = new URLSearchParams(window.location.search);
-            const urlRef = params.get('ref');
-            if (urlRef && TonWeb.utils.Address.isValid(urlRef.trim())) {
-                const standardized = new TonWeb.utils.Address(urlRef.trim()).toString(true, true, true);
-                localStorage.setItem("ggg_permanence_ref_v6", standardized);
-                return standardized;
-            }
-        } catch(e) { console.error("Referral Engine Error:", e); }
-        return localStorage.getItem("ggg_permanence_ref_v6");
-    }
-    checkAndStoreReferrer();
-
-    // TonConnect Initializer with CRITICAL Return Strategy Patch
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
-        buttonRootId: "wallet",
-        actionsConfiguration: {
-            returnStrategy: 'tg://' // FIXES GOOGLE PAGE REDIRECT ISSUES INSIDE TELEGRAM BOT APP
-        }
+        buttonRootId: "wallet"
     });
 
     tonConnectUI.onStatusChange(w => { 
@@ -204,13 +144,11 @@
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
         document.getElementById(id).classList.add('active-screen');
-        document.querySelectorAll('.nav-item').forEach(n => {
-            n.classList.toggle('active', n.innerText.toLowerCase().includes(id.split('-')[0]));
+        document.querySelectorAll('.nav-item').forEach(n => { 
+            n.classList.toggle('active', n.innerText.toLowerCase().includes(id.split('-')[0])); 
         });
     }
 
-    function openModal() { document.getElementById('info-modal').style.display = 'flex'; }
-    function closeModal() { document.getElementById('info-modal').style.display = 'none'; }
     function toggleMode() {
         document.body.classList.toggle('light-mode');
         const icon = document.getElementById('theme-icon');
@@ -221,11 +159,18 @@
         document.getElementById('display-amt').innerText = parseFloat(val).toFixed(2);
         document.getElementById('est-payout').innerText = (parseFloat(val) * 1.85).toFixed(3);
     }
-    function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
+
+    function setSide(s) { 
+        isSideLow = s; 
+        document.getElementById('lowBtn').classList.toggle('active', s); 
+        document.getElementById('highBtn').classList.toggle('active', !s); 
+    }
 
     function updateRefUI() {
         if (!userAddress) return;
-        const link = window.location.origin + window.location.pathname + "?ref=" + userAddress;
+        // Telegram Bot Link အဖြစ် ပြောင်းလဲတည်ဆောက်ခြင်း
+        const rawAddr = new TonWeb.utils.Address(userAddress).toString(true, true, true);
+        const link = "https://t.me/GoldenGameGlobal_official_bot?start=" + rawAddr;
         document.getElementById("refLink").innerText = link;
     }
 
@@ -248,64 +193,73 @@
                 body: JSON.stringify({ "address": CONTRACT_ADDR, "method": method, "stack": [["tvm.Slice", b64]] })
             });
             const d = await r.json();
-            return d.result?.stack?.[0]?.[1] ? TonWeb.utils.fromNano(BigInt(d.result.stack[0][1]).toString()) : "0";
+            if(d.result && d.result.stack && d.result.stack[0]) {
+                let val = d.result.stack[0][1];
+                return val ? BigInt(val).toString() : "0";
+            }
+            return "0";
         } catch(e) { return "0"; }
     }
 
     async function loadData() {
         if (!userAddress) return;
-        try {
-            const p = await fetchGetter("pendingWin");
-            const rBal = await fetchGetter("referralBalance");
-            const rCountRaw = await fetchGetter("referralCount");
-            
-            // Scaled integration for referral counts
-            const count = Math.round(parseFloat(rCountRaw) * 1000000000) || 0; 
-            
-            document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
-            document.getElementById('ref').innerText = parseFloat(rBal).toFixed(3);
-            document.getElementById('ref-bal').innerText = parseFloat(rBal).toFixed(3);
-            document.getElementById('ref-count').innerText = count;
+        
+        // Smart Contract ထဲမှ တိုက်ရိုက်ခေါ်ယူခြင်း
+        const pRaw = await fetchGetter("pendingWin");
+        const rBalRaw = await fetchGetter("referralBalance");
+        const rCountRaw = await fetchGetter("referralCount");
+        
+        // Nanoton ပြောင်းလဲမှုများ စနစ်တကျလုပ်ဆောင်ခြင်း
+        const p = TonWeb.utils.fromNano(pRaw);
+        const rBal = TonWeb.utils.fromNano(rBalRaw);
+        const count = parseInt(rCountRaw) || 0; // Referral Count ကို ကိန်းပြည့်အတိုင်းယူခြင်း
+        
+        document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
+        document.getElementById('ref-bal').innerText = parseFloat(rBal).toFixed(3);
+        document.getElementById('ref-count').innerText = count;
 
-            document.getElementById('tier1').classList.toggle('eligible', count >= 10);
-            document.getElementById('tier2').classList.toggle('eligible', count >= 30);
-            document.getElementById('tier3').classList.toggle('eligible', count >= 50);
-            document.getElementById('tier4').classList.toggle('eligible', count >= 100);
-            
-            lastKnownPending = parseFloat(p);
-        } catch(err) { console.error("Sync failure:", err); }
+        // Milestones များကို စစ်ဆေးပြီး Glowing Effect ပြုလုပ်ခြင်း
+        document.getElementById('tier1').classList.toggle('eligible', count >= 10);
+        document.getElementById('tier2').classList.toggle('eligible', count >= 30);
+        document.getElementById('tier3').classList.toggle('eligible', count >= 50);
+        document.getElementById('tier4').classList.toggle('eligible', count >= 100);
+        
+        lastKnownPending = parseFloat(p);
     }
 
-    // EXACT REALIGNMENT FOR TACT V6_0 BET STRUCT
     async function placeBet() {
-        if (!userAddress) return alert("Please connect wallet!");
+        if (!userAddress) return alert("Connect Wallet!");
         const val = document.getElementById('amount-slider').value;
         const beforePending = lastKnownPending;
         const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const betId = Date.now();
         
         try {
-            const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.05")); 
+            const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.03")); 
             const cell = new TonWeb.boc.Cell();
-            
-            // 1. Write Message Opcode (0xAAAABBBB)
-            cell.bits.writeUint(0xAAAABBBB, 32);
-            // 2. Write sideLow: Bool
+            cell.bits.writeUint(0xAAAABBBB, 32); // Opcode
             cell.bits.writeBit(isSideLow);
-            // 3. Write amount: Int as coins (Crucial requirement in Tact V6_0)
             cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            // 4. Write referrer: Address? (Maybe Address formatting)
-            const activeReferrer = checkAndStoreReferrer();
-            if (activeReferrer && TonWeb.utils.Address.isValid(activeReferrer)) {
-                cell.bits.writeBit(true); // Prefix 1 bit for true (Address present)
-                cell.bits.writeAddress(new TonWeb.utils.Address(activeReferrer));
-            } else {
-                cell.bits.writeBit(false); // Prefix 1 bit for false (Null address)
+            // Telegram WebApp URL မှ Referral Code ကို ဖတ်ယူခြင်း
+            let refAddress = null;
+            const urlParams = new URLSearchParams(window.location.search);
+            const tgStartParam = urlParams.get('tgWebAppStartParam'); // Telegram Mini App Param
+            const normalRef = urlParams.get('ref');
+            
+            if (tgStartParam) {
+                refAddress = tgStartParam;
+            } else if (normalRef) {
+                refAddress = normalRef;
+            }
+
+            if (refAddress) {
+                cell.bits.writeAddress(new TonWeb.utils.Address(refAddress)); 
+            } else { 
+                cell.bits.writeAddress(null);
             }
 
             const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
-            const gameEntry = { id: betId, time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: "WAITING", statusClass: "status-waiting" };
+            const gameEntry = { time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: "⏳" };
             gameHistory.push(gameEntry); renderHistory();
 
             await tonConnectUI.sendTransaction({
@@ -315,26 +269,17 @@
 
             setTimeout(async () => {
                 await loadData();
-                if (lastKnownPending > beforePending) { 
-                    gameEntry.status = "WIN 🟢"; gameEntry.statusClass = "status-win"; 
-                } else { 
-                    gameEntry.status = "LOSE 🔴"; gameEntry.statusClass = "status-lose"; 
-                }
+                gameEntry.status = (lastKnownPending > beforePending) ? "WIN 🟢" : "LOSE 🔴";
                 renderHistory();
             }, 12000);
-
-        } catch (e) { 
-            console.error("Tx Engine Error:", e);
-            gameHistory = gameHistory.filter(g => g.id !== betId); 
-            renderHistory(); 
-        }
+        } catch (e) { console.error(e); }
     }
 
     function renderHistory() {
         const el = document.getElementById("historyList");
-        if (gameHistory.length === 0) { el.innerHTML = '<tr><td colspan="4" style="opacity:0.5; padding:20px;">No bets yet</td></tr>'; return; }
+        if (gameHistory.length === 0) { el.innerHTML = '<tr><td style="padding:20px; opacity:0.5;">No history yet</td></tr>'; return; }
         el.innerHTML = gameHistory.slice().reverse().map(g => `
-            <tr><td>${g.time}</td><td><b>${g.amount}</b></td><td>${g.side}</td><td><span class="${g.statusClass}">${g.status}</span></td></tr>
+            <tr><td>${g.time}</td><td><b>${g.amount}</b></td><td>${g.side}</td><td>${g.status}</td></tr>
         `).join("");
     }
 
@@ -362,7 +307,8 @@
         });
     }
 
-    setInterval(loadData, 10000);
+    setInterval(loadData, 15000);
+    renderHistory();
 </script>
 </body>
 </html>
