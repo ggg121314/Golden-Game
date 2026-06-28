@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Triple(G) Golden Game</title>
+    <title>GOLDEN GAME GLOBAL V1.17</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -20,20 +20,19 @@
         .control-panel { background: var(--card); width: 100%; max-width: 400px; padding: 20px; border-radius: 25px; border: 1px solid var(--glass); box-sizing: border-box; }
         .stat-item-blue { background: rgba(52, 152, 219, 0.15); padding: 10px; border-radius: 12px; border: 1px solid var(--blue); text-align: center; }
         .stat-item-blue b { color: var(--blue); font-size: 16px; }
-        .btn-green { width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--green); color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
-        .btn-green:active { opacity: 0.8; }
-        .bet-slider { width: 100%; height: 8px; border-radius: 5px; background: #334155; outline: none; -webkit-appearance: none; accent-color: var(--accent); margin: 15px 0; }
+        .btn-green { width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--green); color: white; font-weight: bold; cursor: pointer; }
+        .bet-slider { width: 100%; height: 8px; border-radius: 5px; background: #334155; outline: none; -webkit-appearance: none; accent-color: var(--accent); }
         .side-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
         .side-btn { padding: 12px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; font-weight: bold; cursor: pointer; }
         .side-btn.active { background: var(--accent); color: black; border-color: var(--accent); }
+        .payout-box { background: rgba(46, 204, 113, 0.15); border: 2px dashed var(--green); padding: 12px; border-radius: 15px; text-align: center; margin-bottom: 15px; }
         .bonus-box { background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); transition: 0.3s; }
-        .bonus-box.eligible { border: 2px solid var(--green); box-shadow: 0 0 10px var(--green); background: rgba(46, 204, 113, 0.1); }
-        .footer { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); z-index: 1000; }
+        .bonus-box.eligible { border: 2px solid var(--green); box-shadow: 0 0 10px var(--green); }
+        .footer { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); }
         .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #848e9c; font-size: 11px; cursor: pointer; }
         .nav-item.active { color: var(--accent); }
         .history-table { width: 100%; max-width: 400px; border-collapse: collapse; font-size: 12px; margin-top: 20px; background: var(--card); border-radius: 15px; overflow: hidden; }
         .history-table td { padding: 12px; text-align: center; border-top: 1px solid var(--glass); }
-        .payout-highlight-box { background: rgba(241, 196, 15, 0.1); border: 2px dashed var(--accent); border-radius: 15px; padding: 12px; margin: 15px 0; text-align: center; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -61,7 +60,7 @@
     </div>
 
     <div class="control-panel">
-        <div style="font-size:28px; font-weight:900; text-align:center; color:var(--accent);"><span id="display-amt">0.10</span> <small>TON</small></div>
+        <div style="font-size:28px; font-weight:900; text-align:center; color:var(--accent); margin-bottom:5px;"><span id="display-amt">0.10</span> <small>TON</small></div>
         <input type="range" min="0.1" max="2.0" step="0.1" value="0.1" class="bet-slider" id="amount-slider" oninput="updateBetUI(this.value)">
         
         <div class="side-btns">
@@ -69,18 +68,18 @@
             <button id="highBtn" class="side-btn" onclick="setSide(false)">HIGH (50-98)</button>
         </div>
 
-        <div class="payout-highlight-box">
-            <div style="font-size: 12px; color: var(--text); opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Estimated Win Amount (Total Return)</div>
-            <div style="font-size: 24px; font-weight: 800; color: var(--accent); margin-top: 2px;"><span id="est-payout">0.185</span> TON</div>
+        <div class="payout-box">
+            <span style="font-size: 12px; color: var(--text); opacity: 0.9;">IF YOU WIN, YOU WILL RECEIVE:</span>
+            <div style="font-size: 22px; font-weight: bold; color: var(--green); margin-top: 3px;"><span id="est-payout">0.185</span> TON</div>
         </div>
 
         <button class="btn-green" style="height:55px; font-size:18px;" onclick="placeBet()">PLACE BET</button>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
-            <div class="stat-item-blue"><span>PENDING WIN</span><br><b id="pending">0.000</b></div>
-            <button onclick="claimWin()" class="btn-green" style="background:var(--green); height: 53px;">CLAIM WIN</button>
+            <div class="stat-item-blue"><span>PENDING WIN</span><br><b id="pending">0.00</b></div>
+            <button onclick="claimWin()" class="btn-green" style="background:var(--green);">CLAIM WIN</button>
         </div>
-        <div style="text-align:center; font-size:11px; margin-top:12px; opacity:0.6;">Gas Fee Network Required: 0.03 TON</div>
+        <div style="text-align:center; font-size:11px; margin-top:10px; opacity:0.6;">Gas Fee: 0.03 TON</div>
     </div>
 
     <table class="history-table">
@@ -92,18 +91,17 @@
     <div class="control-panel" style="text-align:center;">
         <i class="fas fa-users" style="font-size:40px; color:var(--accent);"></i>
         <h3 style="margin:10px 0;">REFERRAL SYSTEM</h3>
-        
-        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px; border: 1px solid var(--glass);">Connect wallet to get referral link</div>
+        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Connect wallet</div>
         <button id="copyBtn" onclick="copyLink()" class="btn-green" style="background:var(--accent); color:black;">COPY LINK</button>
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
             <div class="stat-item-blue"><span>INVITED</span><br><b id="ref-count">0</b></div>
-            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.000</b></div>
+            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.00</b></div>
         </div>
         <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px;">CLAIM REFERRAL</button>
 
-        <a href="https://t.me/GoldenGameGlobal_bot" target="_blank" style="text-decoration: none;">
-            <button class="btn-green" style="margin-top: 15px; background: #2481cc;"><i class="fab fa-telegram"></i> JOIN OFFICIAL BOT</button>
+        <a href="https://t.me/GoldenGameGlobal_bot" target="_blank" style="text-decoration:none;">
+            <button class="btn-green" style="margin-top:15px; background:#2481cc;"><i class="fab fa-telegram"></i> JOIN OFFICIAL BOT</button>
         </a>
 
         <div style="text-align:left; background:rgba(52,152,219,0.1); padding:15px; border-radius:15px; margin-top:20px; border:1px solid var(--blue);">
@@ -126,12 +124,18 @@
     <div class="nav-item" onclick="showScreen('play-screen')"><i class="fas fa-gamepad"></i>Play</div>
     <div class="nav-item" onclick="showScreen('invite-screen')"><i class="fas fa-gift"></i>Invite</div>
 </div>
-
-<script>
+    <script>
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
+
+    // URL ကနေ Referral ID (အဟောင်း သို့မဟုတ် အသစ်) ကို အလိုအလျောက် သိုလှောင်သိမ်းဆည်းခြင်း
+    const urlParams = new URLSearchParams(window.location.search);
+    const incomingRef = urlParams.get('ref');
+    if (incomingRef) {
+        localStorage.setItem('game_referrer', incomingRef);
+    }
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
@@ -140,6 +144,7 @@
 
     tonConnectUI.onStatusChange(w => { 
         if (w) { 
+            // Wallet Address ကွန်နက်ရှင် တည်ဆောက်မှုပုံစံကို ညှိယူခြင်း
             userAddress = w.account.address; 
             updateRefUI(); 
             loadData(); 
@@ -149,9 +154,7 @@
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
         document.getElementById(id).classList.add('active-screen');
-        document.querySelectorAll('.nav-item').forEach(n => { 
-            n.classList.toggle('active', n.innerText.toLowerCase().includes(id.split('-')[0])); 
-        });
+        document.querySelectorAll('.nav-item').forEach(n => { n.classList.toggle('active', n.innerText.toLowerCase().includes(id.split('-')[0])); });
     }
 
     function toggleMode() {
@@ -165,17 +168,12 @@
         document.getElementById('est-payout').innerText = (parseFloat(val) * 1.85).toFixed(3);
     }
 
-    function setSide(s) { 
-        isSideLow = s; 
-        document.getElementById('lowBtn').classList.toggle('active', s); 
-        document.getElementById('highBtn').classList.toggle('active', !s); 
-    }
+    function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
 
     function updateRefUI() {
         if (!userAddress) return;
-        // Telegram Bot အတွင်းမှာ တန်းပွင့်ဖို့အတွက် Link ပုံစံပြောင်းလဲပြုပြင်ထားပါတယ်
-        const rawAddr = new TonWeb.utils.Address(userAddress).toString(true, true, true);
-        const link = "https://t.me/GoldenGameGlobal_bot?start=" + rawAddr;
+        // ကစားသမားသစ်တွေ ဝင်လာရင် အသုံးပြုမယ့် လင့်ခ်ဖန်တီးမှုပုံစံ
+        const link = window.location.origin + window.location.pathname + "?ref=" + userAddress;
         document.getElementById("refLink").innerText = link;
     }
 
@@ -235,16 +233,10 @@
             cell.bits.writeBit(isSideLow);
             cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            // Telegram start parameter မှတဆင့် ref ခေါ်ယူခြင်း သို့မဟုတ် query parameter စစ်ဆေးခြင်း
-            const params = new URLSearchParams(window.location.search);
-            let ref = params.get('ref') || params.get('tgWebAppStartParam');
-            
-            if (ref) {
-                try {
-                    cell.bits.writeAddress(new TonWeb.utils.Address(ref));
-                } catch(addrErr) {
-                    cell.bits.writeAddress(null);
-                }
+            // LocalStorage ထဲကနေ Referral ID ကို မှန်ကန်စွာဆွဲထုတ်ပြီး Smart Contract ဆီသို့ တိုက်ရိုက်ပေးပို့ခြင်း
+            const savedRef = localStorage.getItem('game_referrer');
+            if (savedRef) {
+                cell.bits.writeAddress(new TonWeb.utils.Address(savedRef));
             } else {
                 cell.bits.writeAddress(null);
             }
@@ -253,6 +245,7 @@
             const gameEntry = { time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: "⏳" };
             gameHistory.push(gameEntry); renderHistory();
 
+            // Destination ကို Contract Address သို့ တိကျစွာ လမ်းကြောင်းလွှဲပေးခြင်း
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 300,
                 messages: [{ address: CONTRACT_ADDR, amount: total.toString(), payload: payload }]
