@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GGG MASTER V6.1 - GOLDEN PRO</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Triple(G) Golden Game</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -21,18 +20,20 @@
         .control-panel { background: var(--card); width: 100%; max-width: 400px; padding: 20px; border-radius: 25px; border: 1px solid var(--glass); box-sizing: border-box; }
         .stat-item-blue { background: rgba(52, 152, 219, 0.15); padding: 10px; border-radius: 12px; border: 1px solid var(--blue); text-align: center; }
         .stat-item-blue b { color: var(--blue); font-size: 16px; }
-        .btn-green { width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--green); color: white; font-weight: bold; cursor: pointer; }
-        .bet-slider { width: 100%; height: 8px; border-radius: 5px; background: #334155; outline: none; -webkit-appearance: none; accent-color: var(--accent); }
+        .btn-green { width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--green); color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .btn-green:active { opacity: 0.8; }
+        .bet-slider { width: 100%; height: 8px; border-radius: 5px; background: #334155; outline: none; -webkit-appearance: none; accent-color: var(--accent); margin: 15px 0; }
         .side-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
         .side-btn { padding: 12px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; font-weight: bold; cursor: pointer; }
         .side-btn.active { background: var(--accent); color: black; border-color: var(--accent); }
         .bonus-box { background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); transition: 0.3s; }
-        .bonus-box.eligible { border: 2px solid var(--green); box-shadow: 0 0 10px var(--green); }
+        .bonus-box.eligible { border: 2px solid var(--green); box-shadow: 0 0 10px var(--green); background: rgba(46, 204, 113, 0.1); }
         .footer { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); z-index: 1000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #848e9c; font-size: 11px; cursor: pointer; }
         .nav-item.active { color: var(--accent); }
         .history-table { width: 100%; max-width: 400px; border-collapse: collapse; font-size: 12px; margin-top: 20px; background: var(--card); border-radius: 15px; overflow: hidden; }
         .history-table td { padding: 12px; text-align: center; border-top: 1px solid var(--glass); }
+        .payout-highlight-box { background: rgba(241, 196, 15, 0.1); border: 2px dashed var(--accent); border-radius: 15px; padding: 12px; margin: 15px 0; text-align: center; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -68,13 +69,18 @@
             <button id="highBtn" class="side-btn" onclick="setSide(false)">HIGH (50-98)</button>
         </div>
 
+        <div class="payout-highlight-box">
+            <div style="font-size: 12px; color: var(--text); opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Estimated Win Amount (Total Return)</div>
+            <div style="font-size: 24px; font-weight: 800; color: var(--accent); margin-top: 2px;"><span id="est-payout">0.185</span> TON</div>
+        </div>
+
         <button class="btn-green" style="height:55px; font-size:18px;" onclick="placeBet()">PLACE BET</button>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
-            <div class="stat-item-blue"><span>PENDING WIN</span><br><b id="pending">0.00</b></div>
-            <button onclick="claimWin()" class="btn-green" style="background:var(--green);">CLAIM WIN</button>
+            <div class="stat-item-blue"><span>PENDING WIN</span><br><b id="pending">0.000</b></div>
+            <button onclick="claimWin()" class="btn-green" style="background:var(--green); height: 53px;">CLAIM WIN</button>
         </div>
-        <div style="text-align:center; font-size:10px; margin-top:10px; opacity:0.6;">Est. Payout: <span id="est-payout">0.185</span> | Gas: 0.03 TON</div>
+        <div style="text-align:center; font-size:11px; margin-top:12px; opacity:0.6;">Gas Fee Network Required: 0.03 TON</div>
     </div>
 
     <table class="history-table">
@@ -86,14 +92,19 @@
     <div class="control-panel" style="text-align:center;">
         <i class="fas fa-users" style="font-size:40px; color:var(--accent);"></i>
         <h3 style="margin:10px 0;">REFERRAL SYSTEM</h3>
-        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Connect wallet</div>
+        
+        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px; border: 1px solid var(--glass);">Connect wallet to get referral link</div>
         <button id="copyBtn" onclick="copyLink()" class="btn-green" style="background:var(--accent); color:black;">COPY LINK</button>
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
             <div class="stat-item-blue"><span>INVITED</span><br><b id="ref-count">0</b></div>
-            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.00</b></div>
+            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.000</b></div>
         </div>
         <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px;">CLAIM REFERRAL</button>
+
+        <a href="https://t.me/GoldenGameGlobal_bot" target="_blank" style="text-decoration: none;">
+            <button class="btn-green" style="margin-top: 15px; background: #2481cc;"><i class="fab fa-telegram"></i> JOIN OFFICIAL BOT</button>
+        </a>
 
         <div style="text-align:left; background:rgba(52,152,219,0.1); padding:15px; border-radius:15px; margin-top:20px; border:1px solid var(--blue);">
             <h4 style="margin:0 0 5px 0; color:var(--blue);"><i class="fas fa-info-circle"></i> Bonus Rules</h4>
@@ -117,12 +128,6 @@
 </div>
 
 <script>
-    // Initialize Telegram WebApp
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand(); // Screen ကို အပြည့်ချဲ့ပေးရန်
-    }
-
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
@@ -168,9 +173,9 @@
 
     function updateRefUI() {
         if (!userAddress) return;
-        // Telegram Bot Link အဖြစ် ပြောင်းလဲတည်ဆောက်ခြင်း
+        // Telegram Bot အတွင်းမှာ တန်းပွင့်ဖို့အတွက် Link ပုံစံပြောင်းလဲပြုပြင်ထားပါတယ်
         const rawAddr = new TonWeb.utils.Address(userAddress).toString(true, true, true);
-        const link = "https://t.me/GoldenGameGlobal_official_bot?start=" + rawAddr;
+        const link = "https://t.me/GoldenGameGlobal_bot?start=" + rawAddr;
         document.getElementById("refLink").innerText = link;
     }
 
@@ -193,32 +198,22 @@
                 body: JSON.stringify({ "address": CONTRACT_ADDR, "method": method, "stack": [["tvm.Slice", b64]] })
             });
             const d = await r.json();
-            if(d.result && d.result.stack && d.result.stack[0]) {
-                let val = d.result.stack[0][1];
-                return val ? BigInt(val).toString() : "0";
-            }
-            return "0";
+            return d.result?.stack?.[0]?.[1] ? TonWeb.utils.fromNano(BigInt(d.result.stack[0][1]).toString()) : "0";
         } catch(e) { return "0"; }
     }
 
     async function loadData() {
         if (!userAddress) return;
-        
-        // Smart Contract ထဲမှ တိုက်ရိုက်ခေါ်ယူခြင်း
-        const pRaw = await fetchGetter("pendingWin");
-        const rBalRaw = await fetchGetter("referralBalance");
+        const p = await fetchGetter("pendingWin");
+        const rBal = await fetchGetter("referralBalance");
         const rCountRaw = await fetchGetter("referralCount");
         
-        // Nanoton ပြောင်းလဲမှုများ စနစ်တကျလုပ်ဆောင်ခြင်း
-        const p = TonWeb.utils.fromNano(pRaw);
-        const rBal = TonWeb.utils.fromNano(rBalRaw);
-        const count = parseInt(rCountRaw) || 0; // Referral Count ကို ကိန်းပြည့်အတိုင်းယူခြင်း
+        const count = Math.floor(parseFloat(rCountRaw) * 1000000000) || 0; 
         
         document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
         document.getElementById('ref-bal').innerText = parseFloat(rBal).toFixed(3);
         document.getElementById('ref-count').innerText = count;
 
-        // Milestones များကို စစ်ဆေးပြီး Glowing Effect ပြုလုပ်ခြင်း
         document.getElementById('tier1').classList.toggle('eligible', count >= 10);
         document.getElementById('tier2').classList.toggle('eligible', count >= 30);
         document.getElementById('tier3').classList.toggle('eligible', count >= 50);
@@ -236,25 +231,21 @@
         try {
             const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.03")); 
             const cell = new TonWeb.boc.Cell();
-            cell.bits.writeUint(0xAAAABBBB, 32); // Opcode
+            cell.bits.writeUint(0xAAAABBBB, 32);
             cell.bits.writeBit(isSideLow);
             cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            // Telegram WebApp URL မှ Referral Code ကို ဖတ်ယူခြင်း
-            let refAddress = null;
-            const urlParams = new URLSearchParams(window.location.search);
-            const tgStartParam = urlParams.get('tgWebAppStartParam'); // Telegram Mini App Param
-            const normalRef = urlParams.get('ref');
+            // Telegram start parameter မှတဆင့် ref ခေါ်ယူခြင်း သို့မဟုတ် query parameter စစ်ဆေးခြင်း
+            const params = new URLSearchParams(window.location.search);
+            let ref = params.get('ref') || params.get('tgWebAppStartParam');
             
-            if (tgStartParam) {
-                refAddress = tgStartParam;
-            } else if (normalRef) {
-                refAddress = normalRef;
-            }
-
-            if (refAddress) {
-                cell.bits.writeAddress(new TonWeb.utils.Address(refAddress)); 
-            } else { 
+            if (ref) {
+                try {
+                    cell.bits.writeAddress(new TonWeb.utils.Address(ref));
+                } catch(addrErr) {
+                    cell.bits.writeAddress(null);
+                }
+            } else {
                 cell.bits.writeAddress(null);
             }
 
