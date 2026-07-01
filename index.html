@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GOLDEN GAME GLOBAL V1.17</title>
+    <title>GOLDEN GAME GLOBAL V1.18</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -31,6 +32,8 @@
         .footer { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); }
         .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #848e9c; font-size: 11px; cursor: pointer; }
         .nav-item.active { color: var(--accent); }
+        .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .btn-social { padding: 10px; border-radius: 10px; border: none; color: white; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none; }
         .history-table { width: 100%; max-width: 400px; border-collapse: collapse; font-size: 12px; margin-top: 20px; background: var(--card); border-radius: 15px; overflow: hidden; }
         .history-table td { padding: 12px; text-align: center; border-top: 1px solid var(--glass); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -100,9 +103,17 @@
         </div>
         <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px;">CLAIM REFERRAL</button>
 
-        <a href="https://t.me/GoldenGameGlobal_bot" target="_blank" style="text-decoration:none;">
-            <button class="btn-green" style="margin-top:15px; background:#2481cc;"><i class="fab fa-telegram"></i> JOIN OFFICIAL BOT</button>
-        </a>
+        <div class="social-grid">
+            <a href="https://t.me/GoldenGameGlobal_official_bot" target="_blank" class="btn-social" style="background:#2481cc; grid-column: span 2;">
+                <i class="fab fa-telegram"></i> JOIN OFFICIAL BOT
+            </a>
+            <a href="https://t.me/GoldenGameGlobal_Channel" target="_blank" class="btn-social" style="background:#f39c12;">
+                <i class="fas fa-bullhorn"></i> JOIN CHANNEL
+            </a>
+            <a href="https://t.me/GoldenGameGlobal_Chat" target="_blank" class="btn-social" style="background:#9b59b6;">
+                <i class="fas fa-comments"></i> JOIN CHAT GROUP
+            </a>
+        </div>
 
         <div style="text-align:left; background:rgba(52,152,219,0.1); padding:15px; border-radius:15px; margin-top:20px; border:1px solid var(--blue);">
             <h4 style="margin:0 0 5px 0; color:var(--blue);"><i class="fas fa-info-circle"></i> Bonus Rules</h4>
@@ -130,12 +141,35 @@
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
 
-    // URL ကနေ Referral ID (အဟောင်း သို့မဟုတ် အသစ်) ကို အလိုအလျောက် သိုလှောင်သိမ်းဆည်းခြင်း
-    const urlParams = new URLSearchParams(window.location.search);
-    const incomingRef = urlParams.get('ref');
-    if (incomingRef) {
-        localStorage.setItem('game_referrer', incomingRef);
+    // Telegram SDK ရယူခြင်းနှင့် စစ်ဆေးခြင်း
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+        tg.ready();
+        tg.expand();
     }
+
+    // Double-Layer Referral Detection Logic
+    function detectReferrer() {
+        let ref = null;
+        
+        // ၁။ Telegram Mini App startapp ကနေ အရင်ရှာမယ် (Highest Priority)
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+            ref = tg.initDataUnsafe.start_param;
+        }
+        
+        // ၂။ မရှိရင် Chrome Browser URL parameter (?ref=) ကနေ ရှာမယ်
+        if (!ref) {
+            const urlParams = new URLSearchParams(window.location.search);
+            ref = urlParams.get('ref');
+        }
+        
+        // တွေ့ရှိပါက LocalStorage ထဲတွင် အပြီးသိမ်းဆည်းမည်
+        if (ref && TonWeb.utils.Address.isValid(ref)) {
+            localStorage.setItem('game_referrer', ref);
+            console.log("Referrer Captured Successfully: ", ref);
+        }
+    }
+    detectReferrer();
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
@@ -144,7 +178,6 @@
 
     tonConnectUI.onStatusChange(w => { 
         if (w) { 
-            // Wallet Address ကွန်နက်ရှင် တည်ဆောက်မှုပုံစံကို ညှိယူခြင်း
             userAddress = w.account.address; 
             updateRefUI(); 
             loadData(); 
@@ -172,8 +205,13 @@
 
     function updateRefUI() {
         if (!userAddress) return;
-        // ကစားသမားသစ်တွေ ဝင်လာရင် အသုံးပြုမယ့် လင့်ခ်ဖန်တီးမှုပုံစံ
-        const link = window.location.origin + window.location.pathname + "?ref=" + userAddress;
+        let link = "";
+        // Telegram Mini App ထဲရောက်နေရင် Telegram Link ထုတ်ပေးမယ်၊ Chrome ဆိုရင် Web URL ထုတ်ပေးမယ်
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.query_id) {
+            link = `https://t.me/GoldenGameGlobal_official_bot/app?startapp=${userAddress}`;
+        } else {
+            link = window.location.origin + window.location.pathname + "?ref=" + userAddress;
+        }
         document.getElementById("refLink").innerText = link;
     }
 
@@ -206,6 +244,7 @@
         const rBal = await fetchGetter("referralBalance");
         const rCountRaw = await fetchGetter("referralCount");
         
+        // Smart Contract ရဲ့ Number Bits ရှင်းလင်းမှုစနစ် ပြင်ဆင်ချက်
         const count = Math.floor(parseFloat(rCountRaw) * 1000000000) || 0; 
         
         document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
@@ -233,9 +272,9 @@
             cell.bits.writeBit(isSideLow);
             cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            // LocalStorage ထဲကနေ Referral ID ကို မှန်ကန်စွာဆွဲထုတ်ပြီး Smart Contract ဆီသို့ တိုက်ရိုက်ပေးပို့ခြင်း
+            // LocalStorage ထဲက သိမ်းဆည်းထားသော Referrer ကို ဆွဲထုတ်သုံးစွဲခြင်း
             const savedRef = localStorage.getItem('game_referrer');
-            if (savedRef) {
+            if (savedRef && TonWeb.utils.Address.isValid(savedRef)) {
                 cell.bits.writeAddress(new TonWeb.utils.Address(savedRef));
             } else {
                 cell.bits.writeAddress(null);
@@ -245,18 +284,31 @@
             const gameEntry = { time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: "⏳" };
             gameHistory.push(gameEntry); renderHistory();
 
-            // Destination ကို Contract Address သို့ တိကျစွာ လမ်းကြောင်းလွှဲပေးခြင်း
+            // Wallet Return Strategy ကို Telegram WebView တိုက်ရိုက်ပြန်ဝင်အောင် စီမံခြင်း
+            const returnStrategy = (tg && tg.initDataUnsafe && tg.initDataUnsafe.query_id) ? "tma" : "back";
+
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 300,
+                returnStrategy: returnStrategy,
                 messages: [{ address: CONTRACT_ADDR, amount: total.toString(), payload: payload }]
             });
 
+            // History တိကျစေရန် ၁၅ စက္ကန့် စောင့်ဆိုင်းပြီး Data ပြန်တိုက်စစ်ခြင်း
             setTimeout(async () => {
                 await loadData();
-                gameEntry.status = (lastKnownPending > beforePending) ? "WIN 🟢" : "LOSE 🔴";
+                if (lastKnownPending > beforePending) {
+                    gameEntry.status = "WIN 🟢";
+                } else {
+                    // Smart Contract သို့ Transaction အောင်မြင်စွာ ရောက်ရှိကြောင်း သေချာစေရန်
+                    gameEntry.status = "COMPLETED 🔴"; 
+                }
                 renderHistory();
-            }, 12000);
-        } catch (e) { console.error(e); }
+            }, 15000);
+        } catch (e) { 
+            console.error(e); 
+            gameHistory.pop();
+            renderHistory();
+        }
     }
 
     function renderHistory() {
