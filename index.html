@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GOLDEN GAME GLOBAL V1.19 - PRO</title>
+    <title>GOLDEN GAME GLOBAL V1.20 - TMA PRO</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -93,7 +94,7 @@
     <div class="control-panel" style="text-align:center;">
         <i class="fas fa-users" style="font-size:40px; color:var(--accent);"></i>
         <h3 style="margin:10px 0;">REFERRAL SYSTEM</h3>
-        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Connect wallet</div>
+        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Please open from official Telegram Bot to get your Referral link.</div>
         <button id="copyBtn" onclick="copyLink()" class="btn-green" style="background:var(--accent); color:black;">COPY LINK</button>
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
@@ -134,43 +135,47 @@
     <div class="nav-item" onclick="showScreen('play-screen')"><i class="fas fa-gamepad"></i>Play</div>
     <div class="nav-item" onclick="showScreen('invite-screen')"><i class="fas fa-gift"></i>Invite</div>
 </div>
+
 <script>
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
+    let tgUserRawId = null; // ကစားသမား၏ Telegram ID သီးသန့်သိုလှောင်ရန်
 
-    // Pure Chrome Link Parameter (`?ref=`) တစ်ခုတည်းဖြင့် ၁၀၀% တိကျစွာ အလုပ်လုပ်စေခြင်း
+    // Telegram Mini App (TMA) Architecture Tracking စနစ်
+    const tgWebApp = window.Telegram?.WebApp;
+    if (tgWebApp) {
+        tgWebApp.ready();
+        tgWebApp.expand(); // ဂိမ်းမျက်နှာပြင်အား အပြည့်ချဲ့ပေးခြင်း
+
+        // ကစားသမား၏ Telegram ID ကို ရယူသိမ်းဆည်းခြင်း
+        if (tgWebApp.initDataUnsafe?.user) {
+            tgUserRawId = tgWebApp.initDataUnsafe.user.id;
+        }
+
+        // Telegram Bot ကနေ တိုက်ရိုက်ပါလာတဲ့ Referral Parameter ကို ဖတ်ယူခြင်း
+        const tgStartParam = tgWebApp.initDataUnsafe?.start_param;
+        if (tgStartParam && tgStartParam.startsWith('ref_')) {
+            const rawRefWallet = tgStartParam.replace('ref_', '');
+            if (TonWeb.utils.Address.isValid(rawRefWallet)) {
+                localStorage.setItem('game_referrer', rawRefWallet);
+            }
+        }
+    }
+
+    // Backup URL Parameters System (အကယ်၍ Parameter ပါလာပါက ဖတ်ရန်)
     const urlParams = new URLSearchParams(window.location.search);
     const incomingRef = urlParams.get('ref');
     if (incomingRef && TonWeb.utils.Address.isValid(incomingRef)) {
         localStorage.setItem('game_referrer', incomingRef);
     }
 
-    // Professional Wallet Architecture Config: Tonkeeper မှအထွက်တွင် Chrome သို့ မပျက်မကွက် ပြန်လမ်းညွှန်ခြင်း
-    const currentUrlWithoutParams = window.location.origin + window.location.pathname;
+    // Mini App သီးသန့် တည်ငြိမ်မှုအရှိဆုံး Wallet Setup
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
-        buttonRootId: "wallet",
-        walletsListConfiguration: {
-            includeWallets: [
-                {
-                    appName: "tonkeeper",
-                    name: "Tonkeeper",
-                    imageUrl: "https://tonkeeper.com/assets/tonkeeper-icon.png",
-                    aboutUrl: "https://tonkeeper.com",
-                    universalLink: "https://app.tonkeeper.com/ton-connect",
-                    bridgeUrl: "https://bridge.tonapi.io/bridge",
-                    platforms: ["ios", "android", "chrome"]
-                }
-            ]
-        }
+        buttonRootId: "wallet"
     });
-
-    // Navigation Stack Error ကို ကျော်လွှားရန် Return URL အား Dynamic Force လုပ်ခြင်း
-    tonConnectUI.uiOptions = {
-        twaReturnUrl: currentUrlWithoutParams
-    };
 
     tonConnectUI.onStatusChange(w => { 
         if (w) { 
@@ -199,14 +204,18 @@
 
     function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
 
+    // Telegram Bot စနစ်နှင့် ကိုက်ညီသော Referral Link တည်ဆောက်ထုတ်ပေးခြင်း
     function updateRefUI() {
         if (!userAddress) return;
-        const link = window.location.origin + window.location.pathname + "?ref=" + userAddress;
-        document.getElementById("refLink").innerText = link;
+        const botUsername = "GoldenGameGlobal_official_bot";
+        // ကစားသမား၏ TON Wallet Address အား Telegram Parameter ဝင်ဆံ့အောင် ref_ ပုံစံဖြင့် လင့်ခ်ချိတ်ပေးခြင်း
+        const tmeLink = `https://t.me/${botUsername}?startapp=ref_${userAddress}`;
+        document.getElementById("refLink").innerText = tmeLink;
     }
 
     function copyLink() {
         const text = document.getElementById("refLink").innerText;
+        if(text.includes("Please open")) return;
         navigator.clipboard.writeText(text);
         const btn = document.getElementById("copyBtn");
         btn.innerHTML = '<i class="fas fa-check"></i> COPIED';
@@ -281,7 +290,6 @@
                 messages: [{ address: CONTRACT_ADDR, amount: total.toString(), payload: payload }]
             });
 
-            // History logic ပြင်ဆင်ချက် - Smart Contract ၏ တုံ့ပြန်မှုအပေါ်မူတည်၍ အမှန်ကန်ဆုံး ပြသပေးခြင်း
             setTimeout(async () => {
                 await loadData();
                 if (lastKnownPending > beforePending) {
