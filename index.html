@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GOLDEN GAME GLOBAL V1.20 - TMA PRO</title>
+    <title>GOLDEN GAME GLOBAL V1.21 - DIAGNOSTIC PRO</title>
+    <!-- Telegram Mini App SDK နှင့် TON SDK များ စနစ်တကျ ချိတ်ဆက်ခြင်း -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
@@ -135,43 +136,59 @@
     <div class="nav-item" onclick="showScreen('play-screen')"><i class="fas fa-gamepad"></i>Play</div>
     <div class="nav-item" onclick="showScreen('invite-screen')"><i class="fas fa-gift"></i>Invite</div>
 </div>
-
 <script>
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
-    let tgUserRawId = null; // ကစားသမား၏ Telegram ID သီးသန့်သိုလှောင်ရန်
+    let tgUserRawId = null;
 
-    // Telegram Mini App (TMA) Architecture Tracking စနစ်
+    // ==========================================
+    // 🛠️ TELEGRAM MINI APP REFERRAL PIPELINE LOGIC
+    // ==========================================
+    console.log("[TMA Diagnostic] Initializing Telegram Mini App SDK Pipeline...");
+    
     const tgWebApp = window.Telegram?.WebApp;
     if (tgWebApp) {
         tgWebApp.ready();
-        tgWebApp.expand(); // ဂိမ်းမျက်နှာပြင်အား အပြည့်ချဲ့ပေးခြင်း
+        tgWebApp.expand();
+        console.log("[TMA Diagnostic] Telegram WebApp SDK Ready.");
 
-        // ကစားသမား၏ Telegram ID ကို ရယူသိမ်းဆည်းခြင်း
         if (tgWebApp.initDataUnsafe?.user) {
             tgUserRawId = tgWebApp.initDataUnsafe.user.id;
+            console.log("[TMA Diagnostic] Connected Telegram User Raw ID:", tgUserRawId);
         }
 
-        // Telegram Bot ကနေ တိုက်ရိုက်ပါလာတဲ့ Referral Parameter ကို ဖတ်ယူခြင်း
+        // start_param အား အမှားအယွင်းမရှိ တိကျစွာ ဖတ်ယူခြင်း
         const tgStartParam = tgWebApp.initDataUnsafe?.start_param;
+        console.log("[TMA Diagnostic] Raw incoming start_param fetched:", tgStartParam);
+
         if (tgStartParam && tgStartParam.startsWith('ref_')) {
-            const rawRefWallet = tgStartParam.replace('ref_', '');
+            const rawRefWallet = tgStartParam.replace('ref_', '').trim();
+            console.log("[TMA Diagnostic] Parsing Extracted Referrer Wallet String:", rawRefWallet);
+            
             if (TonWeb.utils.Address.isValid(rawRefWallet)) {
                 localStorage.setItem('game_referrer', rawRefWallet);
+                console.log("[TMA Diagnostic] SUCCESS: Valid Referrer saved to localStorage:", localStorage.getItem('game_referrer'));
+            } else {
+                console.error("[TMA Diagnostic] ERROR: Parsed address is NOT a valid TON address format:", rawRefWallet);
             }
+        } else {
+            console.log("[TMA Diagnostic] Info: No valid referral start_param detected in this session.");
         }
+    } else {
+        console.warn("[TMA Diagnostic] Warning: Script is running outside official Telegram App container.");
     }
 
-    // Backup URL Parameters System (အကယ်၍ Parameter ပါလာပါက ဖတ်ရန်)
+    // Pure Chrome/External Link Fallback Backup System
     const urlParams = new URLSearchParams(window.location.search);
     const incomingRef = urlParams.get('ref');
     if (incomingRef && TonWeb.utils.Address.isValid(incomingRef)) {
-        localStorage.setItem('game_referrer', incomingRef);
+        localStorage.setItem('game_referrer', incomingRef.trim());
+        console.log("[TMA Diagnostic] Fallback Success: Referrer saved from URL Query:", localStorage.getItem('game_referrer'));
     }
 
-    // Mini App သီးသန့် တည်ငြိမ်မှုအရှိဆုံး Wallet Setup
+    // TonConnect Configuration Setup
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
         buttonRootId: "wallet"
@@ -180,6 +197,7 @@
     tonConnectUI.onStatusChange(w => { 
         if (w) { 
             userAddress = w.account.address; 
+            console.log("[TMA Diagnostic] User Connected TON Wallet Address:", userAddress);
             updateRefUI(); 
             loadData(); 
         } 
@@ -204,11 +222,9 @@
 
     function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
 
-    // Telegram Bot စနစ်နှင့် ကိုက်ညီသော Referral Link တည်ဆောက်ထုတ်ပေးခြင်း
     function updateRefUI() {
         if (!userAddress) return;
         const botUsername = "GoldenGameGlobal_official_bot";
-        // ကစားသမား၏ TON Wallet Address အား Telegram Parameter ဝင်ဆံ့အောင် ref_ ပုံစံဖြင့် လင့်ခ်ချိတ်ပေးခြင်း
         const tmeLink = `https://t.me/${botUsername}?startapp=ref_${userAddress}`;
         document.getElementById("refLink").innerText = tmeLink;
     }
@@ -222,7 +238,8 @@
         setTimeout(() => { btn.innerText = "COPY LINK"; }, 2000);
     }
 
-    async function fetchGetter(method) {
+    // Getter Functions ပြင်ဆင်ချက် - Count အား တိုက်ရိုက်ကိန်းဂဏန်းအတိုင်း ဖတ်ရန် Parameter စနစ်ထည့်ခြင်း
+    async function fetchGetter(method, isCoin = true) {
         if (!userAddress) return "0";
         try {
             const addr = new TonWeb.utils.Address(userAddress);
@@ -233,21 +250,19 @@
                 body: JSON.stringify({ "address": CONTRACT_ADDR, "method": method, "stack": [["tvm.Slice", b64]] })
             });
             const d = await r.json();
-            return d.result?.stack?.[0]?.[1] ? TonWeb.utils.fromNano(BigInt(d.result.stack[0][1]).toString()) : "0";
+            if (!d.result?.stack?.[0]?.[1]) return "0";
+            const val = BigInt(d.result.stack[0][1]).toString();
+            return isCoin ? TonWeb.utils.fromNano(val) : val;
         } catch(e) { return "0"; }
     }
 
     async function loadData() {
         if (!userAddress) return;
-        const p = await fetchGetter("pendingWin");
-        const rBal = await fetchGetter("referralBalance");
-        const rCountRaw = await fetchGetter("referralCount");
+        const p = await fetchGetter("pendingWin", true);
+        const rBal = await fetchGetter("referralBalance", true);
+        const rCountRaw = await fetchGetter("referralCount", false); // Coin မဟုတ်သဖြင့် False ပေးပြီး တိုက်ရိုက်ဖတ်သည်
         
-        let count = 0;
-        if (parseFloat(rCountRaw) > 0) {
-            count = Math.round(parseFloat(rCountRaw) * 1000000000);
-            if (count > 100000) count = Math.floor(parseFloat(rCountRaw)); 
-        }
+        const count = parseInt(rCountRaw, 10) || 0;
         
         document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
         document.getElementById('ref-bal').innerText = parseFloat(rBal).toFixed(3);
@@ -261,6 +276,9 @@
         lastKnownPending = parseFloat(p);
     }
 
+    // ========================================================
+    // 🚀 TACT OPTIONAL ADDRESS SERIALIZATION PAYLOAD BUILDER (FIXED)
+    // ========================================================
     async function placeBet() {
         if (!userAddress) return alert("Connect Wallet!");
         const val = document.getElementById('amount-slider').value;
@@ -270,18 +288,29 @@
         try {
             const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.03")); 
             const cell = new TonWeb.boc.Cell();
+            
+            // Layout Opcodes Encoding
             cell.bits.writeUint(0xAAAABBBB, 32);
             cell.bits.writeBit(isSideLow);
             cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
+            // LocalStorage မှ တန်ဖိုးကို ဆွဲထုတ်ပြီး စစ်ဆေးခြင်း
             const savedRef = localStorage.getItem('game_referrer');
+            console.log("[TMA Payload Pipeline] Fetching saved referrer from localStorage:", savedRef);
+
+            // TACT SMART CONTRACT OPTIONAL ADDRESS? (SOME VS NONE BIT SERIALIZATION)
             if (savedRef && TonWeb.utils.Address.isValid(savedRef)) {
+                console.log("[TMA Payload Pipeline] ENCODING ACTION: Option(Some) -> Writing bit 1 followed by address.");
+                cell.bits.writeBit(true); // 1-bit prefix to signal Tact that optional Address has a value
                 cell.bits.writeAddress(new TonWeb.utils.Address(savedRef));
             } else {
-                cell.bits.writeAddress(null);
+                console.log("[TMA Payload Pipeline] ENCODING ACTION: Option(None) -> Writing bit 0.");
+                cell.bits.writeBit(false); // 1-bit prefix to signal Tact that optional Address is null/none
             }
 
             const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
+            console.log("[TMA Payload Pipeline] Payload compilation complete. Sending TX payload string:", payload);
+
             const gameEntry = { time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: "⏳ Processing" };
             gameHistory.push(gameEntry); renderHistory();
 
@@ -300,7 +329,7 @@
                 renderHistory();
             }, 14000);
         } catch (e) { 
-            console.error(e); 
+            console.error("[TMA Payload Pipeline] Transaction Broadcast Failed:", e); 
             gameHistory.pop();
             renderHistory();
         }
