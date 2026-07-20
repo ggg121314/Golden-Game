@@ -10,80 +10,57 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --bg: #0b0e11; --card: #161b22; --accent: #f1c40f; --green: #2ecc71; --blue: #3498db; --text: #eaecef; --nav: #161b22; --btn: #2b3139; --glass: rgba(255, 255, 255, 0.05); }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; transition: 0.3s; overflow-x: hidden; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; }
         .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: url('https://i.ibb.co/FbrzsJ9J/Screenshot-2026-04-10-17-14-06-636.jpg') center/cover no-repeat; opacity: 0.15; }
         .header { display: flex; justify-content: space-between; padding: 15px; background: var(--card); align-items: center; border-bottom: 1px solid var(--glass); }
-        .screen { display: none; flex-direction: column; align-items: center; padding: 15px; width: 100%; animation: fadeIn 0.4s; }
+        .screen { display: none; flex-direction: column; align-items: center; padding: 15px; width: 100%; box-sizing: border-box; }
         .active-screen { display: flex; }
         .visual-area { width: 100%; max-width: 400px; height: 180px; border-radius: 20px; overflow: hidden; margin-bottom: 15px; border: 2px solid var(--accent); }
         .game-bg-img { width: 100%; height: 100%; object-fit: cover; }
-        .control-panel { background: var(--card); width: 100%; max-width: 400px; padding: 20px; border-radius: 25px; border: 1px solid var(--glass); }
+        .control-panel { background: var(--card); width: 100%; max-width: 400px; padding: 20px; border-radius: 25px; border: 1px solid var(--glass); box-sizing: border-box; }
         .stat-item-blue { background: rgba(52, 152, 219, 0.15); padding: 10px; border-radius: 12px; border: 1px solid var(--blue); text-align: center; }
-        .stat-item-blue b { color: var(--blue); font-size: 16px; }
         .btn-green { width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--green); color: white; font-weight: bold; cursor: pointer; }
-        .bet-slider { width: 100%; height: 8px; border-radius: 5px; background: #334155; outline: none; -webkit-appearance: none; accent-color: var(--accent); }
         .side-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
         .side-btn { padding: 12px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; font-weight: bold; cursor: pointer; }
-        .side-btn.active { background: var(--accent); color: black; border-color: var(--accent); }
-        .payout-box { background: rgba(46, 204, 113, 0.15); border: 2px dashed var(--green); padding: 12px; border-radius: 15px; text-align: center; margin-bottom: 15px; }
-        .bonus-box { background: rgba(52, 152, 219, 0.1); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); }
-        .bonus-box.eligible { border: 2px solid var(--green); box-shadow: 0 0 10px var(--green); }
+        .side-btn.active { background: var(--accent); color: black; }
         .footer { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--nav); display: flex; border-top: 1px solid var(--glass); }
-        .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #848e9c; font-size: 11px; cursor: pointer; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; color: #848e9c; }
         .nav-item.active { color: var(--accent); }
-        .history-table { width: 100%; max-width: 400px; border-collapse: collapse; font-size: 12px; margin-top: 20px; background: var(--card); border-radius: 15px; overflow: hidden; }
-        .history-table td { padding: 12px; text-align: center; border-top: 1px solid var(--glass); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 <div class="bg-overlay"></div>
-<div class="header">
-    <div id="wallet"></div>
-    <div onclick="document.body.classList.toggle('light-mode')" style="color:var(--accent); cursor:pointer;"><i class="fas fa-moon"></i></div>
-</div>
+<div class="header"> <div id="wallet"></div> </div>
 
 <div id="lobby-screen" class="screen active-screen">
-    <div class="visual-area" style="height: 200px;"><img src="https://i.ibb.co/HfV9cGL0/IMG-20260407-222820.png" class="game-bg-img"></div>
+    <div class="visual-area"><img src="https://i.ibb.co/HfV9cGL0/IMG-20260407-222820.png" class="game-bg-img"></div>
     <div class="control-panel" style="text-align: center;">
-        <h2 style="margin: 0; color: var(--accent);">GOLDEN LOW-HIGH</h2>
-        <button class="btn-green" style="font-size:16px; padding:15px;" onclick="showScreen('play-screen')">PLAY NOW</button>
+        <h2>GOLDEN LOW-HIGH</h2>
+        <button class="btn-green" onclick="showScreen('play-screen')">PLAY NOW</button>
     </div>
 </div>
 
 <div id="play-screen" class="screen">
     <div class="visual-area"><img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-bg-img"></div>
     <div class="control-panel">
-        <div style="font-size:28px; text-align:center; color:var(--accent);"><span id="display-amt">0.10</span> <small>TON</small></div>
-        <input type="range" min="0.1" max="2.0" step="0.1" value="0.1" class="bet-slider" oninput="updateBetUI(this.value)">
+        <input type="range" min="0.1" max="2.0" step="0.1" value="0.1" class="bet-slider" id="amount-slider" oninput="updateBetUI(this.value)">
         <div class="side-btns">
             <button id="lowBtn" class="side-btn active" onclick="setSide(true)">LOW</button>
             <button id="highBtn" class="side-btn" onclick="setSide(false)">HIGH</button>
         </div>
-        <div class="payout-box">Win: <span id="est-payout">0.185</span> TON</div>
-        <button class="btn-green" style="height:55px;" onclick="placeBet()">PLACE BET</button>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
-            <div class="stat-item-blue"><span>PENDING</span><br><b id="pending">0.00</b></div>
-            <button onclick="claimWin()" class="btn-green">CLAIM</button>
-        </div>
+        <button class="btn-green" onclick="placeBet()">PLACE BET</button>
     </div>
-    <table class="history-table"><tbody id="historyList"><tr><td>No history</td></tr></tbody></table>
 </div>
 
 <div id="invite-screen" class="screen">
     <div class="control-panel" style="text-align:center;">
         <h3>REFERRAL SYSTEM</h3>
-        <div id="refLink" style="font-size:11px; background:#000; padding:10px; border-radius:10px;">Connect wallet</div>
-        <button onclick="copyLink()" class="btn-green">COPY LINK</button>
+        <div id="refLink" style="font-size:11px; background:#000; padding:10px; border-radius:10px; word-break:break-all;">Loading...</div>
+        <button class="btn-green" onclick="copyLink()">COPY LINK</button>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
-            <div class="stat-item-blue"><span>INVITED</span><br><b id="ref-count">0</b></div>
-            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.00</b></div>
+            <div class="stat-item-blue">INVITED<br><b id="ref-count">0</b></div>
+            <div class="stat-item-blue">5% EARN<br><b id="ref-bal">0.00</b></div>
         </div>
-        <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px;">CLAIM REFERRAL</button>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
-            <div class="bonus-box" id="tier1">10 Refs</div><div class="bonus-box" id="tier2">30 Refs</div>
-        </div>
-        <button onclick="claimBonus()" class="btn-green" style="margin-top:10px;">CLAIM VIP BONUS</button>
     </div>
 </div>
 
@@ -92,108 +69,56 @@
     <div class="nav-item" onclick="showScreen('play-screen')"><i class="fas fa-gamepad"></i>Play</div>
     <div class="nav-item" onclick="showScreen('invite-screen')"><i class="fas fa-gift"></i>Invite</div>
 </div>
+
 <script>
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
-    const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
-    let userAddress = null; let isSideLow = true; let lastKnownPending = 0;
+    let userAddress = null; let isSideLow = true;
 
-    const tgWebApp = window.Telegram?.WebApp;
-    if (tgWebApp) { tgWebApp.ready(); tgWebApp.expand(); }
-
-    // Referral Param ဖတ်ယူခြင်း
-    const urlParams = new URLSearchParams(window.location.search);
-    const startParam = tgWebApp?.initDataUnsafe?.start_param || urlParams.get('ref');
-    if (startParam && startParam.startsWith('ref_')) {
-        localStorage.setItem('game_referrer', startParam.replace('ref_', ''));
+    // Telegram Referral Logic
+    const tg = window.Telegram?.WebApp;
+    if (tg?.initDataUnsafe?.start_param) {
+        const ref = tg.initDataUnsafe.start_param.replace('ref_', '');
+        if (TonWeb.utils.Address.isValid(ref)) localStorage.setItem('game_referrer', ref);
     }
 
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
-        buttonRootId: "wallet"
-    });
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json", buttonRootId: "wallet" });
 
-    tonConnectUI.onStatusChange(w => { if (w) { userAddress = w.account.address; updateRefUI(); loadData(); } });
-
-    function showScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-        document.getElementById(id).classList.add('active-screen');
-    }
-
-    function updateBetUI(val) {
-        document.getElementById('display-amt').innerText = parseFloat(val).toFixed(2);
-        document.getElementById('est-payout').innerText = (parseFloat(val) * 1.85).toFixed(3);
-    }
-
-    function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
+    tonConnectUI.onStatusChange(w => { if (w) { userAddress = w.account.address; updateRefUI(); } });
 
     function updateRefUI() {
         if (!userAddress) return;
         document.getElementById("refLink").innerText = `https://t.me/GoldenGameGlobal_official_bot?startapp=ref_${userAddress}`;
     }
 
+    function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
+
     async function placeBet() {
         if (!userAddress) return alert("Connect Wallet!");
         const val = document.getElementById('amount-slider').value;
-        try {
-            const cell = new TonWeb.boc.Cell();
-            cell.bits.writeUint(0xAAAABBBB, 32); // Opcode
-            cell.bits.writeBit(isSideLow);        // sideLow
-            cell.bits.writeCoins(TonWeb.utils.toNano(val)); // Amount
+        const cell = new TonWeb.boc.Cell();
+        cell.bits.writeUint(0xAAAABBBB, 32);
+        cell.bits.writeBit(isSideLow);
+        cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            // REFERRER LOGIC (Fixed for Address?)
-            const savedRef = localStorage.getItem('game_referrer');
-            if (savedRef && TonWeb.utils.Address.isValid(savedRef)) {
-                cell.bits.writeBit(true); // Address? SOME = Bit 1
-                cell.bits.writeAddress(new TonWeb.utils.Address(savedRef));
-            } else {
-                cell.bits.writeBit(false); // Address? NONE = Bit 0
-            }
+        const savedRef = localStorage.getItem('game_referrer');
+        // Referral ရှိမရှိ Bit ဖြင့် အတိအကျ ခွဲခြားခြင်း (CGPT အကြံပြုချက်)
+        if (savedRef && TonWeb.utils.Address.isValid(savedRef)) {
+            cell.bits.writeBit(true); 
+            cell.bits.writeAddress(new TonWeb.utils.Address(savedRef));
+        } else {
+            cell.bits.writeBit(false);
+        }
 
-            await tonConnectUI.sendTransaction({
-                validUntil: Math.floor(Date.now() / 1000) + 300,
-                messages: [{ 
-                    address: CONTRACT_ADDR, 
-                    amount: TonWeb.utils.toNano(parseFloat(val) + 0.03).toString(), 
-                    payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) 
-                }]
-            });
-        } catch (e) { alert("Transaction Failed: " + e.message); }
+        await tonConnectUI.sendTransaction({
+            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano(parseFloat(val)+0.03).toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
+        });
     }
 
-    async function fetchGetter(method, isCoin = true) {
-        if (!userAddress) return "0";
-        try {
-            const addr = new TonWeb.utils.Address(userAddress);
-            const cell = new TonWeb.boc.Cell(); cell.bits.writeAddress(addr);
-            const b64 = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
-            const r = await fetch(`${API}/runGetMethod`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ "address": CONTRACT_ADDR, "method": method, "stack": [["tvm.Slice", b64]] })
-            });
-            const d = await r.json();
-            const val = d.result?.stack?.[0]?.[1] ? BigInt(d.result.stack[0][1]).toString() : "0";
-            return isCoin ? TonWeb.utils.fromNano(val) : val;
-        } catch(e) { return "0"; }
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+        document.getElementById(id).classList.add('active-screen');
     }
-
-    async function loadData() {
-        const p = await fetchGetter("pendingWin");
-        const rBal = await fetchGetter("referralBalance");
-        const count = await fetchGetter("referralCount", false);
-        document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
-        document.getElementById('ref-bal').innerText = parseFloat(rBal).toFixed(3);
-        document.getElementById('ref-count').innerText = count;
-    }
-
-    async function claimWin() {
-        const cell = new TonWeb.boc.Cell(); cell.bits.writeUint(0, 32); cell.bits.writeString("Claim");
-        await tonConnectUI.sendTransaction({ messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }] });
-    }
-    
-    function withdrawRef() { /* Withdrawal logic */ }
-    function claimBonus() { /* Bonus logic */ }
-    function copyLink() { navigator.clipboard.writeText(document.getElementById("refLink").innerText); alert("Copied!"); }
 </script>
 </body>
 </html>
