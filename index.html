@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GOLDEN GAME GLOBAL V1.22 - TMA PRO</title>
+    <title>GOLDEN GAME GLOBAL V1.20.1 - TMA PRO</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
@@ -47,9 +47,7 @@
 </div>
 
 <div id="lobby-screen" class="screen active-screen">
-    <div class="visual-area" style="height: 200px;">
-        <img src="https://i.ibb.co/HfV9cGL0/IMG-20260407-222820.png" class="game-bg-img">
-    </div>
+    <div class="visual-area" style="height: 200px;"><img src="https://i.ibb.co/HfV9cGL0/IMG-20260407-222820.png" class="game-bg-img"></div>
     <div class="control-panel" style="text-align: center;">
         <h2 style="margin: 0; color: var(--accent);">GOLDEN LOW-HIGH</h2>
         <p style="font-size: 12px; opacity: 0.7;">Fair Play & High Rewards on TON</p>
@@ -58,9 +56,7 @@
 </div>
 
 <div id="play-screen" class="screen">
-    <div class="visual-area">
-        <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-bg-img">
-    </div>
+    <div class="visual-area"><img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-bg-img"></div>
     <div class="control-panel">
         <div style="font-size:28px; font-weight:900; text-align:center; color:var(--accent); margin-bottom:5px;"><span id="display-amt">0.10</span> <small>TON</small></div>
         <input type="range" min="0.1" max="2.0" step="0.1" value="0.1" class="bet-slider" id="amount-slider" oninput="updateBetUI(this.value)">
@@ -69,7 +65,7 @@
             <button id="highBtn" class="side-btn" onclick="setSide(false)">HIGH (50-98)</button>
         </div>
         <div class="payout-box">
-            <span style="font-size: 12px; opacity: 0.9;">IF YOU WIN, YOU WILL RECEIVE:</span>
+            <span style="font-size: 12px; color: var(--text); opacity: 0.9;">IF YOU WIN, YOU WILL RECEIVE:</span>
             <div style="font-size: 22px; font-weight: bold; color: var(--green); margin-top: 3px;"><span id="est-payout">0.185</span> TON</div>
         </div>
         <button class="btn-green" style="height:55px; font-size:18px;" onclick="placeBet()">PLACE BET</button>
@@ -77,7 +73,6 @@
             <div class="stat-item-blue"><span>PENDING WIN</span><br><b id="pending">0.00</b></div>
             <button onclick="claimWin()" class="btn-green" style="background:var(--green);">CLAIM WIN</button>
         </div>
-        <div style="text-align:center; font-size:11px; margin-top:10px; opacity:0.6;">Gas Fee: 0.03 TON</div>
     </div>
     <table class="history-table"><tbody id="historyList"><tr><td style="padding:20px; opacity:0.5;">History Loading...</td></tr></tbody></table>
 </div>
@@ -86,25 +81,15 @@
     <div class="control-panel" style="text-align:center;">
         <i class="fas fa-users" style="font-size:40px; color:var(--accent);"></i>
         <h3>REFERRAL SYSTEM</h3>
-        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Please connect wallet to generate link.</div>
+        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Please open from Bot.</div>
         <button id="copyBtn" onclick="copyLink()" class="btn-green" style="background:var(--accent); color:black;">COPY LINK</button>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
-            <div class="stat-item-blue"><span>INVITED</span><br><b id="ref-count">0</b></div>
-            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.00</b></div>
+            <div class="stat-item-blue">INVITED<br><b id="ref-count">0</b></div>
+            <div class="stat-item-blue">5% EARN<br><b id="ref-bal">0.00</b></div>
         </div>
         <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px;">CLAIM REFERRAL</button>
-        <div class="social-grid">
-            <a href="https://t.me/GoldenGameGlobal_official_bot" target="_blank" class="btn-social" style="background:#2481cc; grid-column: span 2;"><i class="fab fa-telegram"></i> JOIN OFFICIAL BOT</a>
-            <a href="https://t.me/GoldenGameGlobal_Channel" target="_blank" class="btn-social" style="background:#e67e22;"><i class="fas fa-bullhorn"></i> JOIN CHANNEL</a>
-            <a href="https://t.me/GoldenGameGlobal_Chat" target="_blank" class="btn-social" style="background:#9b59b6;"><i class="fas fa-comments"></i> JOIN OFFICIAL CHAT</a>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
-            <div class="bonus-box" id="tier1"><b>10 Refs</b><br><small>0.3 TON</small></div>
-            <div class="bonus-box" id="tier2"><b>30 Refs</b><br><small>0.6 TON</small></div>
-            <div class="bonus-box" id="tier3"><b>50 Refs</b><br><small>0.6 TON</small></div>
-            <div class="bonus-box" id="tier4"><b>100 Refs</b><br><small>1.5 TON</small></div>
-        </div>
-        <button onclick="claimBonus()" class="btn-green" style="margin-top:15px; background:var(--blue);">CLAIM VIP BONUS</button>
+        <div class="bonus-box" id="tier1" style="margin-top:10px;"><b>VIP Bonus</b><br><small>Reach 10/30/50/100 Refs</small></div>
+        <button onclick="claimBonus()" class="btn-green" style="margin-top:10px; background:var(--blue);">CLAIM VIP BONUS</button>
     </div>
 </div>
 
@@ -116,11 +101,9 @@
 
 <script>
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
-    const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
 
-    // Referral Logic
     const tg = window.Telegram?.WebApp;
     if (tg?.initDataUnsafe?.start_param) {
         const ref = tg.initDataUnsafe.start_param.replace('ref_', '');
@@ -134,20 +117,10 @@
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
         document.getElementById(id).classList.add('active-screen');
-        document.querySelectorAll('.nav-item').forEach(n => { n.classList.toggle('active', n.innerText.toLowerCase().includes(id.split('-')[0])); });
     }
 
-    function toggleMode() {
-        document.body.classList.toggle('light-mode');
-        const icon = document.getElementById('theme-icon');
-        icon.classList.toggle('fa-moon'); icon.classList.toggle('fa-sun');
-    }
-
-    function updateBetUI(val) {
-        document.getElementById('display-amt').innerText = parseFloat(val).toFixed(2);
-        document.getElementById('est-payout').innerText = (parseFloat(val) * 1.85).toFixed(3);
-    }
-
+    function toggleMode() { document.body.classList.toggle('light-mode'); }
+    function updateBetUI(val) { document.getElementById('display-amt').innerText = parseFloat(val).toFixed(2); document.getElementById('est-payout').innerText = (parseFloat(val) * 1.85).toFixed(3); }
     function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
 
     function updateRefUI() {
@@ -158,39 +131,7 @@
     function copyLink() {
         navigator.clipboard.writeText(document.getElementById("refLink").innerText);
         const btn = document.getElementById("copyBtn");
-        btn.innerHTML = '<i class="fas fa-check"></i> COPIED';
-        setTimeout(() => { btn.innerText = "COPY LINK"; }, 2000);
-    }
-
-    async function fetchGetter(method, isCoin = true) {
-        if (!userAddress) return "0";
-        try {
-            const addr = new TonWeb.utils.Address(userAddress);
-            const cell = new TonWeb.boc.Cell(); cell.bits.writeAddress(addr);
-            const b64 = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
-            const r = await fetch(`${API}/runGetMethod`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ "address": CONTRACT_ADDR, "method": method, "stack": [["tvm.Slice", b64]] })
-            });
-            const d = await r.json();
-            if (!d.result?.stack?.[0]?.[1]) return "0";
-            return isCoin ? TonWeb.utils.fromNano(BigInt(d.result.stack[0][1]).toString()) : BigInt(d.result.stack[0][1]).toString();
-        } catch(e) { return "0"; }
-    }
-
-    async function loadData() {
-        if (!userAddress) return;
-        const p = await fetchGetter("pendingWin", true);
-        const rBal = await fetchGetter("referralBalance", true);
-        const count = await fetchGetter("referralCount", false);
-        document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
-        document.getElementById('ref-bal').innerText = parseFloat(rBal).toFixed(3);
-        document.getElementById('ref-count').innerText = count;
-        document.getElementById('tier1').classList.toggle('eligible', count >= 10);
-        document.getElementById('tier2').classList.toggle('eligible', count >= 30);
-        document.getElementById('tier3').classList.toggle('eligible', count >= 50);
-        document.getElementById('tier4').classList.toggle('eligible', count >= 100);
-        lastKnownPending = parseFloat(p);
+        btn.innerText = "COPIED!"; setTimeout(() => { btn.innerText = "COPY LINK"; }, 2000);
     }
 
     async function placeBet() {
@@ -202,19 +143,45 @@
         cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
         const savedRef = localStorage.getItem('game_referrer');
-        // FIXED PAYLOAD: Address ရှိမှ Bit true ပေးပြီး Address ရေးရမည်။
+        // FIX: Payload Encoding Logic for Optional Address (Contract's referrer: Address?)
         if (savedRef && TonWeb.utils.Address.isValid(savedRef)) {
-            cell.bits.writeBit(true); 
+            cell.bits.writeBit(true); // Some
             cell.bits.writeAddress(new TonWeb.utils.Address(savedRef));
         } else {
-            cell.bits.writeBit(false);
+            cell.bits.writeBit(false); // None
         }
 
         try {
             await tonConnectUI.sendTransaction({
                 messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano(parseFloat(val)+0.03).toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
             });
-        } catch (e) { console.error(e); }
+            // Transaction success UI Feedback
+            gameHistory.push({ time: new Date().toLocaleTimeString(), amount: val, side: isSideLow?'LOW':'HIGH', status: "SENT ⏳" });
+            renderHistory();
+        } catch (e) { alert("Transaction Failed"); }
+    }
+
+    async function fetchGetter(method, isCoin = true) {
+        if (!userAddress) return "0";
+        try {
+            const addr = new TonWeb.utils.Address(userAddress);
+            const body = JSON.stringify({ "address": CONTRACT_ADDR, "method": method, "stack": [["tvm.Slice", TonWeb.utils.bytesToBase64(await (new TonWeb.boc.Cell().bits.writeAddress(addr), new TonWeb.boc.Cell().toBoc()))]] });
+            const r = await fetch("https://toncenter.com/api/v2/runGetMethod", { method: 'POST', headers: {'Content-Type': 'application/json'}, body });
+            const d = await r.json();
+            return d.result?.stack?.[0]?.[1] ? (isCoin ? TonWeb.utils.fromNano(BigInt(d.result.stack[0][1]).toString()) : BigInt(d.result.stack[0][1]).toString()) : "0";
+        } catch(e) { return "0"; }
+    }
+
+    async function loadData() {
+        const [p, rBal, count] = await Promise.all([fetchGetter("pendingWin"), fetchGetter("referralBalance"), fetchGetter("referralCount", false)]);
+        document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
+        document.getElementById('ref-bal').innerText = parseFloat(rBal).toFixed(3);
+        document.getElementById('ref-count').innerText = count;
+    }
+
+    function renderHistory() {
+        const el = document.getElementById("historyList");
+        el.innerHTML = gameHistory.slice().reverse().map(g => `<tr><td>${g.time}</td><td>${g.amount}</td><td>${g.side}</td><td>${g.status}</td></tr>`).join("");
     }
 
     async function claimWin() {
@@ -231,9 +198,8 @@
         const cell = new TonWeb.boc.Cell(); cell.bits.writeUint(0, 32); cell.bits.writeString("ClaimBonus");
         await tonConnectUI.sendTransaction({ messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }] });
     }
-
-    setInterval(loadData, 15000);
+    
+    setInterval(loadData, 30000);
 </script>
 </body>
 </html>
-
