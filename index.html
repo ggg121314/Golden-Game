@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GOLDEN GAME GLOBAL V1.20 - TMA PRO</title>
+    <title>GOLDEN GAME GLOBAL V1.22 - TMA PRO</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
@@ -61,65 +61,43 @@
     <div class="visual-area">
         <img src="https://i.ibb.co/JjLp1zJ8/file-00000000740871fa81847d4e88a5158b.png" class="game-bg-img">
     </div>
-
     <div class="control-panel">
         <div style="font-size:28px; font-weight:900; text-align:center; color:var(--accent); margin-bottom:5px;"><span id="display-amt">0.10</span> <small>TON</small></div>
         <input type="range" min="0.1" max="2.0" step="0.1" value="0.1" class="bet-slider" id="amount-slider" oninput="updateBetUI(this.value)">
-        
         <div class="side-btns">
             <button id="lowBtn" class="side-btn active" onclick="setSide(true)">LOW (1-49)</button>
             <button id="highBtn" class="side-btn" onclick="setSide(false)">HIGH (50-98)</button>
         </div>
-
         <div class="payout-box">
-            <span style="font-size: 12px; color: var(--text); opacity: 0.9;">IF YOU WIN, YOU WILL RECEIVE:</span>
+            <span style="font-size: 12px; opacity: 0.9;">IF YOU WIN, YOU WILL RECEIVE:</span>
             <div style="font-size: 22px; font-weight: bold; color: var(--green); margin-top: 3px;"><span id="est-payout">0.185</span> TON</div>
         </div>
-
         <button class="btn-green" style="height:55px; font-size:18px;" onclick="placeBet()">PLACE BET</button>
-
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
             <div class="stat-item-blue"><span>PENDING WIN</span><br><b id="pending">0.00</b></div>
             <button onclick="claimWin()" class="btn-green" style="background:var(--green);">CLAIM WIN</button>
         </div>
         <div style="text-align:center; font-size:11px; margin-top:10px; opacity:0.6;">Gas Fee: 0.03 TON</div>
     </div>
-
-    <table class="history-table">
-        <tbody id="historyList"><tr><td style="padding:20px; opacity:0.5;">History Loading...</td></tr></tbody>
-    </table>
+    <table class="history-table"><tbody id="historyList"><tr><td style="padding:20px; opacity:0.5;">History Loading...</td></tr></tbody></table>
 </div>
 
 <div id="invite-screen" class="screen">
     <div class="control-panel" style="text-align:center;">
         <i class="fas fa-users" style="font-size:40px; color:var(--accent);"></i>
-        <h3 style="margin:10px 0;">REFERRAL SYSTEM</h3>
-        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Please open from official Telegram Bot to get your Referral link.</div>
+        <h3>REFERRAL SYSTEM</h3>
+        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Please connect wallet to generate link.</div>
         <button id="copyBtn" onclick="copyLink()" class="btn-green" style="background:var(--accent); color:black;">COPY LINK</button>
-        
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
             <div class="stat-item-blue"><span>INVITED</span><br><b id="ref-count">0</b></div>
             <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.00</b></div>
         </div>
         <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px;">CLAIM REFERRAL</button>
-
         <div class="social-grid">
-            <a href="https://t.me/GoldenGameGlobal_official_bot" target="_blank" class="btn-social" style="background:#2481cc; grid-column: span 2;">
-                <i class="fab fa-telegram"></i> JOIN OFFICIAL BOT
-            </a>
-            <a href="https://t.me/GoldenGameGlobal_Channel" target="_blank" class="btn-social" style="background:#e67e22;">
-                <i class="fas fa-bullhorn"></i> JOIN CHANNEL
-            </a>
-            <a href="https://t.me/GoldenGameGlobal_Chat" target="_blank" class="btn-social" style="background:#9b59b6;">
-                <i class="fas fa-comments"></i> JOIN OFFICIAL CHAT
-            </a>
+            <a href="https://t.me/GoldenGameGlobal_official_bot" target="_blank" class="btn-social" style="background:#2481cc; grid-column: span 2;"><i class="fab fa-telegram"></i> JOIN OFFICIAL BOT</a>
+            <a href="https://t.me/GoldenGameGlobal_Channel" target="_blank" class="btn-social" style="background:#e67e22;"><i class="fas fa-bullhorn"></i> JOIN CHANNEL</a>
+            <a href="https://t.me/GoldenGameGlobal_Chat" target="_blank" class="btn-social" style="background:#9b59b6;"><i class="fas fa-comments"></i> JOIN OFFICIAL CHAT</a>
         </div>
-
-        <div style="text-align:left; background:rgba(52,152,219,0.1); padding:15px; border-radius:15px; margin-top:20px; border:1px solid var(--blue);">
-            <h4 style="margin:0 0 5px 0; color:var(--blue);"><i class="fas fa-info-circle"></i> Bonus Rules</h4>
-            <p style="font-size:11px; margin:0; opacity:0.8; line-height:1.4;">Get extra TON by reaching referral milestones. Once you reach 10, 30, 50 or 100 active invites, the tier box will glow green, and you can claim your VIP Bonus!</p>
-        </div>
-
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
             <div class="bonus-box" id="tier1"><b>10 Refs</b><br><small>0.3 TON</small></div>
             <div class="bonus-box" id="tier2"><b>30 Refs</b><br><small>0.6 TON</small></div>
@@ -141,49 +119,17 @@
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
-    let tgUserRawId = null; // ကစားသမား၏ Telegram ID သီးသန့်သိုလှောင်ရန်
 
-    // Telegram Mini App (TMA) Architecture Tracking စနစ်
-    const tgWebApp = window.Telegram?.WebApp;
-    if (tgWebApp) {
-        tgWebApp.ready();
-        tgWebApp.expand(); // ဂိမ်းမျက်နှာပြင်အား အပြည့်ချဲ့ပေးခြင်း
-
-        // ကစားသမား၏ Telegram ID ကို ရယူသိမ်းဆည်းခြင်း
-        if (tgWebApp.initDataUnsafe?.user) {
-            tgUserRawId = tgWebApp.initDataUnsafe.user.id;
-        }
-
-        // Telegram Bot ကနေ တိုက်ရိုက်ပါလာတဲ့ Referral Parameter ကို ဖတ်ယူခြင်း
-        const tgStartParam = tgWebApp.initDataUnsafe?.start_param;
-        if (tgStartParam && tgStartParam.startsWith('ref_')) {
-            const rawRefWallet = tgStartParam.replace('ref_', '');
-            if (TonWeb.utils.Address.isValid(rawRefWallet)) {
-                localStorage.setItem('game_referrer', rawRefWallet);
-            }
-        }
+    // Referral Logic
+    const tg = window.Telegram?.WebApp;
+    if (tg?.initDataUnsafe?.start_param) {
+        const ref = tg.initDataUnsafe.start_param.replace('ref_', '');
+        if (TonWeb.utils.Address.isValid(ref)) localStorage.setItem('game_referrer', ref);
     }
 
-    // Backup URL Parameters System (အကယ်၍ Parameter ပါလာပါက ဖတ်ရန်)
-    const urlParams = new URLSearchParams(window.location.search);
-    const incomingRef = urlParams.get('ref');
-    if (incomingRef && TonWeb.utils.Address.isValid(incomingRef)) {
-        localStorage.setItem('game_referrer', incomingRef);
-    }
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json", buttonRootId: "wallet" });
 
-    // Mini App သီးသန့် တည်ငြိမ်မှုအရှိဆုံး Wallet Setup
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
-        buttonRootId: "wallet"
-    });
-
-    tonConnectUI.onStatusChange(w => { 
-        if (w) { 
-            userAddress = w.account.address; 
-            updateRefUI(); 
-            loadData(); 
-        } 
-    });
+    tonConnectUI.onStatusChange(w => { if (w) { userAddress = w.account.address; updateRefUI(); loadData(); } });
 
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
@@ -204,25 +150,19 @@
 
     function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
 
-    // Telegram Bot စနစ်နှင့် ကိုက်ညီသော Referral Link တည်ဆောက်ထုတ်ပေးခြင်း
     function updateRefUI() {
         if (!userAddress) return;
-        const botUsername = "GoldenGameGlobal_official_bot";
-        // ကစားသမား၏ TON Wallet Address အား Telegram Parameter ဝင်ဆံ့အောင် ref_ ပုံစံဖြင့် လင့်ခ်ချိတ်ပေးခြင်း
-        const tmeLink = `https://t.me/${botUsername}?startapp=ref_${userAddress}`;
-        document.getElementById("refLink").innerText = tmeLink;
+        document.getElementById("refLink").innerText = `https://t.me/GoldenGameGlobal_official_bot?startapp=ref_${userAddress}`;
     }
 
     function copyLink() {
-        const text = document.getElementById("refLink").innerText;
-        if(text.includes("Please open")) return;
-        navigator.clipboard.writeText(text);
+        navigator.clipboard.writeText(document.getElementById("refLink").innerText);
         const btn = document.getElementById("copyBtn");
         btn.innerHTML = '<i class="fas fa-check"></i> COPIED';
         setTimeout(() => { btn.innerText = "COPY LINK"; }, 2000);
     }
 
-    async function fetchGetter(method) {
+    async function fetchGetter(method, isCoin = true) {
         if (!userAddress) return "0";
         try {
             const addr = new TonWeb.utils.Address(userAddress);
@@ -233,113 +173,66 @@
                 body: JSON.stringify({ "address": CONTRACT_ADDR, "method": method, "stack": [["tvm.Slice", b64]] })
             });
             const d = await r.json();
-            return d.result?.stack?.[0]?.[1] ? TonWeb.utils.fromNano(BigInt(d.result.stack[0][1]).toString()) : "0";
+            if (!d.result?.stack?.[0]?.[1]) return "0";
+            return isCoin ? TonWeb.utils.fromNano(BigInt(d.result.stack[0][1]).toString()) : BigInt(d.result.stack[0][1]).toString();
         } catch(e) { return "0"; }
     }
 
     async function loadData() {
         if (!userAddress) return;
-        const p = await fetchGetter("pendingWin");
-        const rBal = await fetchGetter("referralBalance");
-        const rCountRaw = await fetchGetter("referralCount");
-        
-        let count = 0;
-        if (parseFloat(rCountRaw) > 0) {
-            count = Math.round(parseFloat(rCountRaw) * 1000000000);
-            if (count > 100000) count = Math.floor(parseFloat(rCountRaw)); 
-        }
-        
+        const p = await fetchGetter("pendingWin", true);
+        const rBal = await fetchGetter("referralBalance", true);
+        const count = await fetchGetter("referralCount", false);
         document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
         document.getElementById('ref-bal').innerText = parseFloat(rBal).toFixed(3);
         document.getElementById('ref-count').innerText = count;
-
         document.getElementById('tier1').classList.toggle('eligible', count >= 10);
         document.getElementById('tier2').classList.toggle('eligible', count >= 30);
         document.getElementById('tier3').classList.toggle('eligible', count >= 50);
         document.getElementById('tier4').classList.toggle('eligible', count >= 100);
-        
         lastKnownPending = parseFloat(p);
     }
 
     async function placeBet() {
         if (!userAddress) return alert("Connect Wallet!");
         const val = document.getElementById('amount-slider').value;
-        const beforePending = lastKnownPending;
-        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        try {
-            const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.03")); 
-            const cell = new TonWeb.boc.Cell();
-            cell.bits.writeUint(0xAAAABBBB, 32);
-            cell.bits.writeBit(isSideLow);
-            cell.bits.writeCoins(TonWeb.utils.toNano(val));
+        const cell = new TonWeb.boc.Cell();
+        cell.bits.writeUint(0xAAAABBBB, 32);
+        cell.bits.writeBit(isSideLow);
+        cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            const savedRef = localStorage.getItem('game_referrer');
-            if (savedRef && TonWeb.utils.Address.isValid(savedRef)) {
-                cell.bits.writeAddress(new TonWeb.utils.Address(savedRef));
-            } else {
-                cell.bits.writeAddress(null);
-            }
-
-            const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
-            const gameEntry = { time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: "⏳ Processing" };
-            gameHistory.push(gameEntry); renderHistory();
-
-            await tonConnectUI.sendTransaction({
-                validUntil: Math.floor(Date.now() / 1000) + 300,
-                messages: [{ address: CONTRACT_ADDR, amount: total.toString(), payload: payload }]
-            });
-
-            setTimeout(async () => {
-                await loadData();
-                if (lastKnownPending > beforePending) {
-                    gameEntry.status = "WIN 🟢";
-                } else {
-                    gameEntry.status = "COMPLETED 🔴"; 
-                }
-                renderHistory();
-            }, 14000);
-        } catch (e) { 
-            console.error(e); 
-            gameHistory.pop();
-            renderHistory();
+        const savedRef = localStorage.getItem('game_referrer');
+        // FIXED PAYLOAD: Address ရှိမှ Bit true ပေးပြီး Address ရေးရမည်။
+        if (savedRef && TonWeb.utils.Address.isValid(savedRef)) {
+            cell.bits.writeBit(true); 
+            cell.bits.writeAddress(new TonWeb.utils.Address(savedRef));
+        } else {
+            cell.bits.writeBit(false);
         }
-    }
 
-    function renderHistory() {
-        const el = document.getElementById("historyList");
-        if (gameHistory.length === 0) { el.innerHTML = '<tr><td style="padding:20px; opacity:0.5;">No history yet</td></tr>'; return; }
-        el.innerHTML = gameHistory.slice().reverse().map(g => `
-            <tr><td>${g.time}</td><td><b>${g.amount}</b></td><td>${g.side}</td><td>${g.status}</td></tr>
-        `).join("");
+        try {
+            await tonConnectUI.sendTransaction({
+                messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano(parseFloat(val)+0.03).toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
+            });
+        } catch (e) { console.error(e); }
     }
 
     async function claimWin() {
         const cell = new TonWeb.boc.Cell(); cell.bits.writeUint(0, 32); cell.bits.writeString("Claim");
-        await tonConnectUI.sendTransaction({
-            validUntil: Math.floor(Date.now() / 1000) + 300,
-            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
-        });
+        await tonConnectUI.sendTransaction({ messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }] });
     }
 
     async function withdrawRef() {
         const cell = new TonWeb.boc.Cell(); cell.bits.writeUint(0, 32); cell.bits.writeString("WithdrawRef");
-        await tonConnectUI.sendTransaction({
-            validUntil: Math.floor(Date.now() / 1000) + 300,
-            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
-        });
+        await tonConnectUI.sendTransaction({ messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }] });
     }
 
     async function claimBonus() {
         const cell = new TonWeb.boc.Cell(); cell.bits.writeUint(0, 32); cell.bits.writeString("ClaimBonus");
-        await tonConnectUI.sendTransaction({
-            validUntil: Math.floor(Date.now() / 1000) + 300,
-            messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }]
-        });
+        await tonConnectUI.sendTransaction({ messages: [{ address: CONTRACT_ADDR, amount: TonWeb.utils.toNano("0.05").toString(), payload: TonWeb.utils.bytesToBase64(await cell.toBoc(false)) }] });
     }
 
     setInterval(loadData, 15000);
-    renderHistory();
 </script>
 </body>
 </html>
