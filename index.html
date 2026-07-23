@@ -99,7 +99,7 @@
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
             <div class="stat-item-blue"><span>INVITED</span><br><b id="ref-count">0</b></div>
-            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.00</b></div>
+            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.000</b></div>
         </div>
         <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px;">CLAIM REFERRAL</button>
 
@@ -140,9 +140,9 @@
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
-    window.REFERRER_ADDRESS = null; // Memory Variable သီးသန့်ထားရှိခြင်း
+    window.REFERRER_ADDRESS = null;
 
-    // Address များကို Standardized Canonical/Friendly Format ပြောင်းလဲပေးသည့် helper
+    // Helper: Address ကို Standardized Canonical/Friendly Format စိစစ်ခြင်း
     function getCanonicalAddress(rawAddr) {
         if (!rawAddr) return null;
         try {
@@ -153,7 +153,7 @@
         }
     }
 
-    // Telegram Mini App (TMA) Architecture Processing
+    // Telegram Mini App Parameters ဖတ်ယူခြင်း
     const tgWebApp = window.Telegram?.WebApp;
     if (tgWebApp) {
         tgWebApp.ready();
@@ -161,8 +161,8 @@
 
         const tgStartParam = tgWebApp.initDataUnsafe?.start_param;
         if (tgStartParam && tgStartParam.startsWith('ref_')) {
-            const rawRefWallet = tgStartParam.replace('ref_', '');
-            const cleanRef = getCanonicalAddress(rawRefWallet);
+            const rawRef = tgStartParam.replace('ref_', '');
+            const cleanRef = getCanonicalAddress(rawRef);
             if (cleanRef) {
                 window.REFERRER_ADDRESS = cleanRef;
                 localStorage.setItem('game_referrer', cleanRef);
@@ -170,7 +170,7 @@
         }
     }
 
-    // URL Backup Processing
+    // URL fallback parsing
     const urlParams = new URLSearchParams(window.location.search);
     const incomingRef = urlParams.get('ref');
     if (incomingRef) {
@@ -181,12 +181,9 @@
         }
     }
 
-    // LocalStorage Backup Recovery
     if (!window.REFERRER_ADDRESS) {
         const stored = localStorage.getItem('game_referrer');
-        if (stored) {
-            window.REFERRER_ADDRESS = getCanonicalAddress(stored);
-        }
+        if (stored) window.REFERRER_ADDRESS = getCanonicalAddress(stored);
     }
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -281,6 +278,7 @@
         lastKnownPending = parseFloat(p);
     }
 
+    // အဓိက ပြင်ဆင်ချက်- Tact Message Payload တွင် Maybe Bit (1-bit Header) တိကျစွာ ရေးသားခြင်း
     async function placeBet() {
         if (!userAddress) return alert("Connect Wallet!");
         const val = document.getElementById('amount-slider').value;
@@ -290,25 +288,32 @@
         try {
             const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.03")); 
             const cell = new TonWeb.boc.Cell();
+            
+            // 1. Opcode (32-bit uint)
             cell.bits.writeUint(0xAAAABBBB, 32);
+            
+            // 2. sideLow (1-bit Bool)
             cell.bits.writeBit(isSideLow);
+            
+            // 3. amount (VarUInt 16 / Coins)
             cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            // Referrer Address ကို Canonical Format စစ်ပြီးမှ တိကျစွာ Smart Contract ထံ ပို့ဆောင်ခြင်း
+            // 4. referrer (Address? - Tact Maybe Bit Structure)
             const activeRef = window.REFERRER_ADDRESS || localStorage.getItem('game_referrer');
             const cleanRef = getCanonicalAddress(activeRef);
             const cleanUser = getCanonicalAddress(userAddress);
 
-            // မိမိကိုယ်ကို Referral မပေးမိစေရန် နှင့် အလွတ်မဖြစ်စေရန် စစ်ဆေးခြင်း
             if (cleanRef && cleanRef !== cleanUser) {
+                cell.bits.writeBit(true); // Tact Maybe Header: 1 bit '1' (Just Address)
                 cell.bits.writeAddress(new TonWeb.utils.Address(cleanRef));
             } else {
-                cell.bits.writeAddress(null);
+                cell.bits.writeBit(false); // Tact Maybe Header: 1 bit '0' (Nothing / null)
             }
 
             const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
             const gameEntry = { time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: "⏳ Processing" };
-            gameHistory.push(gameEntry); renderHistory();
+            gameHistory.push(gameEntry); 
+            renderHistory();
 
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 300,
