@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GOLDEN GAME GLOBAL V1.20 - TMA PRO</title>
+    <title>GOLDEN GAME GLOBAL V1.21 - TMA PRO</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
@@ -52,7 +52,7 @@
     </div>
     <div class="control-panel" style="text-align: center;">
         <h2 style="margin: 0; color: var(--accent);">GOLDEN LOW-HIGH</h2>
-        <p style="font-size: 12px; opacity: 0.7;">Fair Play & High Rewards on TON</p>
+        <p style="font-size: 12px; opacity: 0.7;">Fair Play & High Rewards on TON (v1.21)</p>
         <button class="btn-green" style="font-size:16px; padding:15px;" onclick="showScreen('play-screen')">PLAY NOW</button>
     </div>
 </div>
@@ -142,7 +142,7 @@
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
     window.REFERRER_ADDRESS = null;
 
-    // Helper: Address ကို Standardized Canonical/Friendly Format စိစစ်ခြင်း
+    // Helper: Address ကို Standardized Format သို့ သန့်စင်ခြင်း
     function getCanonicalAddress(rawAddr) {
         if (!rawAddr) return null;
         try {
@@ -170,7 +170,7 @@
         }
     }
 
-    // URL fallback parsing
+    // Direct Web Link Fallback
     const urlParams = new URLSearchParams(window.location.search);
     const incomingRef = urlParams.get('ref');
     if (incomingRef) {
@@ -278,7 +278,7 @@
         lastKnownPending = parseFloat(p);
     }
 
-    // အဓိက ပြင်ဆင်ချက်- Tact Message Payload တွင် Maybe Bit (1-bit Header) တိကျစွာ ရေးသားခြင်း
+    // ဒုတိယအကြိမ်မြောက် အောင်မြင်ခဲ့သော Cell Structure အတိုင်း ပြန်လည်ညှိယူထားသော placeBet
     async function placeBet() {
         if (!userAddress) return alert("Connect Wallet!");
         const val = document.getElementById('amount-slider').value;
@@ -286,6 +286,7 @@
         const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
         try {
+            // Bet Amount + Gas Fee (0.03 TON)
             const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.03")); 
             const cell = new TonWeb.boc.Cell();
             
@@ -294,20 +295,17 @@
             
             // 2. sideLow (1-bit Bool)
             cell.bits.writeBit(isSideLow);
-            
-            // 3. amount (VarUInt 16 / Coins)
-            cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            // 4. referrer (Address? - Tact Maybe Bit Structure)
+            // 3. Referrer Address (Tact Maybe Format)
             const activeRef = window.REFERRER_ADDRESS || localStorage.getItem('game_referrer');
             const cleanRef = getCanonicalAddress(activeRef);
             const cleanUser = getCanonicalAddress(userAddress);
 
             if (cleanRef && cleanRef !== cleanUser) {
-                cell.bits.writeBit(true); // Tact Maybe Header: 1 bit '1' (Just Address)
+                cell.bits.writeBit(true); // Tact Maybe Flag: 1-bit '1'
                 cell.bits.writeAddress(new TonWeb.utils.Address(cleanRef));
             } else {
-                cell.bits.writeBit(false); // Tact Maybe Header: 1 bit '0' (Nothing / null)
+                cell.bits.writeBit(false); // Tact Maybe Flag: 1-bit '0'
             }
 
             const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
