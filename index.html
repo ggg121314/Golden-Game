@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GOLDEN GAME GLOBAL V1.21 - TMA PRO</title>
+    <title>GOLDEN GAME GLOBAL V1.22 - TMA PRO</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
@@ -52,7 +52,7 @@
     </div>
     <div class="control-panel" style="text-align: center;">
         <h2 style="margin: 0; color: var(--accent);">GOLDEN LOW-HIGH</h2>
-        <p style="font-size: 12px; opacity: 0.7;">Fair Play & High Rewards on TON (v1.21)</p>
+        <p style="font-size: 12px; opacity: 0.7;">Fair Play & High Rewards on TON (v1.22)</p>
         <button class="btn-green" style="font-size:16px; padding:15px;" onclick="showScreen('play-screen')">PLAY NOW</button>
     </div>
 </div>
@@ -99,7 +99,7 @@
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
             <div class="stat-item-blue"><span>INVITED</span><br><b id="ref-count">0</b></div>
-            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.000</b></div>
+            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.00</b></div>
         </div>
         <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px;">CLAIM REFERRAL</button>
 
@@ -142,7 +142,7 @@
     let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
     window.REFERRER_ADDRESS = null;
 
-    // Helper: Address ကို Standardized Format သို့ သန့်စင်ခြင်း
+    // Address Format များကို Canonical/Bounceable Format ပြောင်းလဲပေးသည့် Helper
     function getCanonicalAddress(rawAddr) {
         if (!rawAddr) return null;
         try {
@@ -161,8 +161,8 @@
 
         const tgStartParam = tgWebApp.initDataUnsafe?.start_param;
         if (tgStartParam && tgStartParam.startsWith('ref_')) {
-            const rawRef = tgStartParam.replace('ref_', '');
-            const cleanRef = getCanonicalAddress(rawRef);
+            const rawRefWallet = tgStartParam.replace('ref_', '');
+            const cleanRef = getCanonicalAddress(rawRefWallet);
             if (cleanRef) {
                 window.REFERRER_ADDRESS = cleanRef;
                 localStorage.setItem('game_referrer', cleanRef);
@@ -170,7 +170,7 @@
         }
     }
 
-    // Direct Web Link Fallback
+    // Direct Web Link URL Params
     const urlParams = new URLSearchParams(window.location.search);
     const incomingRef = urlParams.get('ref');
     if (incomingRef) {
@@ -181,9 +181,12 @@
         }
     }
 
+    // LocalStorage Backup
     if (!window.REFERRER_ADDRESS) {
         const stored = localStorage.getItem('game_referrer');
-        if (stored) window.REFERRER_ADDRESS = getCanonicalAddress(stored);
+        if (stored) {
+            window.REFERRER_ADDRESS = getCanonicalAddress(stored);
+        }
     }
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -278,7 +281,7 @@
         lastKnownPending = parseFloat(p);
     }
 
-    // ဒုတိယအကြိမ်မြောက် အောင်မြင်ခဲ့သော Cell Structure အတိုင်း ပြန်လည်ညှိယူထားသော placeBet
+    // လောင်းလို့ရခဲ့သော Code ၏ Structure ကို မှန်ကန်စွာ ညှိယူထားသည့် placeBet()
     async function placeBet() {
         if (!userAddress) return alert("Connect Wallet!");
         const val = document.getElementById('amount-slider').value;
@@ -286,32 +289,33 @@
         const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
         try {
-            // Bet Amount + Gas Fee (0.03 TON)
             const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.03")); 
             const cell = new TonWeb.boc.Cell();
             
-            // 1. Opcode (32-bit uint)
+            // ၁။ Opcode (32-bit)
             cell.bits.writeUint(0xAAAABBBB, 32);
             
-            // 2. sideLow (1-bit Bool)
+            // ၂။ Side Low (1-bit)
             cell.bits.writeBit(isSideLow);
+            
+            // ၃။ Bet Amount Coins (မူရင်းအတိုင်း ပြန်ထည့်ပေးထားပါသည်)
+            cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            // 3. Referrer Address (Tact Maybe Format)
+            // ၄။ Referrer Address (Tact Maybe Protocol ဖြင့် Safe Serialization ပြုလုပ်ခြင်း)
             const activeRef = window.REFERRER_ADDRESS || localStorage.getItem('game_referrer');
             const cleanRef = getCanonicalAddress(activeRef);
             const cleanUser = getCanonicalAddress(userAddress);
 
             if (cleanRef && cleanRef !== cleanUser) {
-                cell.bits.writeBit(true); // Tact Maybe Flag: 1-bit '1'
+                cell.bits.writeBit(true); // 1-bit Header (Has Referrer)
                 cell.bits.writeAddress(new TonWeb.utils.Address(cleanRef));
             } else {
-                cell.bits.writeBit(false); // Tact Maybe Flag: 1-bit '0'
+                cell.bits.writeBit(false); // 1-bit Header (No Referrer) - Contract မှ Null အဖြစ် အောင်မြင်စွာ ဖတ်ရှုနိုင်ပါသည်
             }
 
             const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
             const gameEntry = { time: timeStr, amount: val, side: isSideLow?'LOW':'HIGH', status: "⏳ Processing" };
-            gameHistory.push(gameEntry); 
-            renderHistory();
+            gameHistory.push(gameEntry); renderHistory();
 
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 300,
