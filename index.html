@@ -99,7 +99,7 @@
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
             <div class="stat-item-blue"><span>INVITED</span><br><b id="ref-count">0</b></div>
-            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.000</b></div>
+            <div class="stat-item-blue"><span>5% EARN</span><br><b id="ref-bal">0.00</b></div>
         </div>
         <button onclick="withdrawRef()" class="btn-green" style="margin-top:10px;">CLAIM REFERRAL</button>
 
@@ -139,21 +139,24 @@
     const CONTRACT_ADDR = "EQA1kZk2XgLRH9CCLT5mef5h9_s3QcDv9-DPuCzbGgpsDmnn";
     const API = "https://toncenter.com/api/v2";
     const tonweb = new TonWeb();
-    let userAddress = null; let isSideLow = true; let lastKnownPending = 0; let gameHistory = [];
-    window.REFERRER_ADDRESS = null;
+    let userAddress = null; 
+    let isSideLow = true; 
+    let lastKnownPending = 0; 
+    let gameHistory = [];
+    window.REFERRER_ADDRESS = null; // Memory Variable
 
-    // Standardized Friendly Address Conversion
+    // 1. Address သန့်စင်ပေးသည့် စနစ် (Bounceable & UrlSafe)
     function getCanonicalAddress(rawAddr) {
         if (!rawAddr) return null;
         try {
             const addr = new TonWeb.utils.Address(rawAddr);
-            return addr.toString(true, true, false); // Bounceable, UrlSafe, Mainnet
+            return addr.toString(true, true, false); 
         } catch(e) {
             return null;
         }
     }
 
-    // Telegram Mini App Parameters parsing
+    // 2. Telegram WebApp မှ Referral Data ယူခြင်း
     const tgWebApp = window.Telegram?.WebApp;
     if (tgWebApp) {
         tgWebApp.ready();
@@ -161,8 +164,8 @@
 
         const tgStartParam = tgWebApp.initDataUnsafe?.start_param;
         if (tgStartParam && tgStartParam.startsWith('ref_')) {
-            const rawRef = tgStartParam.replace('ref_', '');
-            const cleanRef = getCanonicalAddress(rawRef);
+            const rawRefWallet = tgStartParam.replace('ref_', '');
+            const cleanRef = getCanonicalAddress(rawRefWallet);
             if (cleanRef) {
                 window.REFERRER_ADDRESS = cleanRef;
                 localStorage.setItem('game_referrer', cleanRef);
@@ -170,7 +173,7 @@
         }
     }
 
-    // Direct Web URL Link fallback
+    // 3. URL မှ Referral Data ယူခြင်း (Backup)
     const urlParams = new URLSearchParams(window.location.search);
     const incomingRef = urlParams.get('ref');
     if (incomingRef) {
@@ -181,11 +184,15 @@
         }
     }
 
+    // 4. LocalStorage အဟောင်းများကို ပြန်လည်စစ်ဆေးခြင်း
     if (!window.REFERRER_ADDRESS) {
         const stored = localStorage.getItem('game_referrer');
-        if (stored) window.REFERRER_ADDRESS = getCanonicalAddress(stored);
+        if (stored) {
+            window.REFERRER_ADDRESS = getCanonicalAddress(stored);
+        }
     }
 
+    // 5. TonConnect UI Initialization
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
         buttonRootId: "wallet"
@@ -199,6 +206,7 @@
         } 
     });
 
+    // --- UI Helpers ---
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
         document.getElementById(id).classList.add('active-screen');
@@ -216,7 +224,11 @@
         document.getElementById('est-payout').innerText = (parseFloat(val) * 1.85).toFixed(3);
     }
 
-    function setSide(s) { isSideLow = s; document.getElementById('lowBtn').classList.toggle('active', s); document.getElementById('highBtn').classList.toggle('active', !s); }
+    function setSide(s) { 
+        isSideLow = s; 
+        document.getElementById('lowBtn').classList.toggle('active', s); 
+        document.getElementById('highBtn').classList.toggle('active', !s); 
+    }
 
     function updateRefUI() {
         if (!userAddress) return;
@@ -235,6 +247,7 @@
         setTimeout(() => { btn.innerText = "COPY LINK"; }, 2000);
     }
 
+    // 6. Robust Fetch Getter (Hex နဲ့ Number ပြဿနာကို တိကျစွာ ဖြေရှင်းထားသည်)
     async function fetchGetter(method) {
         if (!userAddress) return "0";
         try {
@@ -248,12 +261,18 @@
             const d = await r.json();
             
             if (d.ok && d.result?.stack?.[0]?.[1]) {
-                return BigInt(d.result.stack[0][1]).toString();
+                let rawValue = d.result.stack[0][1];
+                // Hex string (e.g. 0xa) ဆိုလျှင် Base-16 မှ ပြောင်းပေးရန်
+                if (typeof rawValue === 'string' && rawValue.startsWith('0x')) {
+                    return BigInt(rawValue).toString(10);
+                }
+                return BigInt(rawValue).toString(10);
             }
             return "0";
         } catch(e) { console.error(e); return "0"; }
     }
 
+    // 7. Load Data Function
     async function loadData() {
         if (!userAddress) return;
         
@@ -263,15 +282,9 @@
         const rBalRaw = await fetchGetter("referralBalance");
         const rBal = TonWeb.utils.fromNano(rBalRaw);
         
+        // Count အား Nano သို့ မပြောင်းဘဲ တိုက်ရိုက် Integer အဖြစ် ယူသည်
         const rCountRaw = await fetchGetter("referralCount");
-        // BigInt Conversion ဖြင့် Count ကို အတိအကျ ယူခြင်း
-        let count = 0;
-        try {
-            const bigC = BigInt(rCountRaw);
-            count = Number(bigC > 100000000n ? bigC / 1000000000n : bigC);
-        } catch(e) {
-            count = parseInt(rCountRaw, 10) || 0;
-        }
+        const count = parseInt(rCountRaw, 10) || 0;
         
         document.getElementById('pending').innerText = parseFloat(p).toFixed(3);
         document.getElementById('ref-bal').innerText = parseFloat(rBal).toFixed(3);
@@ -285,7 +298,7 @@
         lastKnownPending = parseFloat(p);
     }
 
-    // 100% Failed မဖြစ်အောင် တိကျစွာ ပြင်ဆင်ထားသော placeBet logic
+    // 8. Place Bet (Failed လုံးဝမဖြစ်စေသော မူရင်း V1.20 Payload ဖွဲ့စည်းပုံအတိုင်း)
     async function placeBet() {
         if (!userAddress) return alert("Connect Wallet!");
         const val = document.getElementById('amount-slider').value;
@@ -296,25 +309,20 @@
             const total = TonWeb.utils.toNano(val).add(TonWeb.utils.toNano("0.03")); 
             const cell = new TonWeb.boc.Cell();
             
-            // 1. Opcode (32-bit uint)
+            // Opcode, Side နှင့် Bet Amount
             cell.bits.writeUint(0xAAAABBBB, 32);
-            
-            // 2. sideLow (1-bit Bool)
             cell.bits.writeBit(isSideLow);
-            
-            // 3. amount (VarUInt 16 / Coins)
             cell.bits.writeCoins(TonWeb.utils.toNano(val));
 
-            // 4. Referrer (Tact Optional Address Bit-Structure Safe Handling)
             const activeRef = window.REFERRER_ADDRESS || localStorage.getItem('game_referrer');
             const cleanRef = getCanonicalAddress(activeRef);
             const cleanUser = getCanonicalAddress(userAddress);
 
+            // [အရေးကြီးဆုံးအပိုင်း] Failed မဖြစ်စေရန် 1-bit boolean မပါဘဲ Address ကိုသာ တိုက်ရိုက်ထည့်သည်
             if (cleanRef && cleanRef !== cleanUser) {
-                cell.bits.writeBit(true); // Maybe bit: true (1)
                 cell.bits.writeAddress(new TonWeb.utils.Address(cleanRef));
             } else {
-                cell.bits.writeBit(false); // Maybe bit: false (0)
+                cell.bits.writeAddress(null); // No Referrer ဆိုပါက null (addr_none 00)
             }
 
             const payload = TonWeb.utils.bytesToBase64(await cell.toBoc(false));
@@ -337,7 +345,7 @@
                 renderHistory();
             }, 14000);
         } catch (e) { 
-            console.error(e); 
+            console.error("Betting Error:", e); 
             gameHistory.pop();
             renderHistory();
         }
@@ -346,11 +354,12 @@
     function renderHistory() {
         const el = document.getElementById("historyList");
         if (gameHistory.length === 0) { el.innerHTML = '<tr><td style="padding:20px; opacity:0.5;">No history yet</td></tr>'; return; }
-        el.innerHTML = gameHistory.slice().reverse().map(g => `
-            <tr><td>${g.time}</td><td><b>${g.amount}</b></td><td>${g.side}</td><td>${g.status}</td></tr>
-        `).join("");
+        el.innerHTML = gameHistory.slice().reverse().map(g => 
+            `<tr><td>${g.time}</td><td><b>${g.amount}</b></td><td>${g.side}</td><td>${g.status}</td></tr>`
+        ).join("");
     }
 
+    // --- Interaction Contracts ---
     async function claimWin() {
         const cell = new TonWeb.boc.Cell(); cell.bits.writeUint(0, 32); cell.bits.writeString("Claim");
         await tonConnectUI.sendTransaction({
