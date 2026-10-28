@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>GOLDEN GAME GLOBAL V1.26 - PRO</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>GOLDEN GAME GLOBAL V1.27 - PRO</title>
     <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -52,7 +51,7 @@
     </div>
     <div class="control-panel" style="text-align: center;">
         <h2 style="margin: 0; color: var(--accent);">GOLDEN LOW-HIGH</h2>
-        <p style="font-size: 12px; opacity: 0.7;">Fair Play & High Rewards on TON</p>
+        <p style="font-size: 12px; opacity: 0.7;">Fair Play & High Rewards on TON (V1.27)</p>
         <button class="btn-green" style="font-size:16px; padding:15px;" onclick="showScreen('play-screen')">PLAY NOW</button>
     </div>
 </div>
@@ -94,7 +93,7 @@
     <div class="control-panel" style="text-align:center;">
         <i class="fas fa-users" style="font-size:40px; color:var(--accent);"></i>
         <h3 style="margin:10px 0;">REFERRAL SYSTEM</h3>
-        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Please open from official Telegram Bot to get your Referral link.</div>
+        <div id="refLink" style="font-size:11px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; word-break:break-all; margin-bottom:10px;">Connect wallet to generate link</div>
         <button id="copyBtn" onclick="copyLink()" class="btn-green" style="background:var(--accent); color:black;">COPY LINK</button>
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
@@ -156,24 +155,7 @@
         }
     }
 
-    // Telegram Mini App (TMA) Params processing
-    const tgWebApp = window.Telegram?.WebApp;
-    if (tgWebApp) {
-        tgWebApp.ready();
-        tgWebApp.expand();
-
-        const tgStartParam = tgWebApp.initDataUnsafe?.start_param;
-        if (tgStartParam && tgStartParam.startsWith('ref_')) {
-            const rawRef = tgStartParam.replace('ref_', '');
-            const cleanRef = getFriendlyAddress(rawRef);
-            if (cleanRef) {
-                window.REFERRER_ADDRESS = cleanRef;
-                localStorage.setItem('game_referrer', cleanRef);
-            }
-        }
-    }
-
-    // URL Query Params Backup
+    // Google Website URL Query Parameters Processing (?ref=...)
     const urlParams = new URLSearchParams(window.location.search);
     const incomingRef = urlParams.get('ref');
     if (incomingRef) {
@@ -184,7 +166,7 @@
         }
     }
 
-    // LocalStorage Backup Recovery
+    // LocalStorage Backup Recovery if URL has no ref parameter
     if (!window.REFERRER_ADDRESS) {
         const stored = localStorage.getItem('game_referrer');
         if (stored) {
@@ -192,9 +174,13 @@
         }
     }
 
+    // TonConnectUI Configuration with returnStrategy: 'none' to fix blank Google screen issue
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://ggg121314.github.io/Golden-Game/tonconnect-manifest.json",
-        buttonRootId: "wallet"
+        buttonRootId: "wallet",
+        actionsConfiguration: {
+            returnStrategy: 'none' // Fixes Tonkeeper redirecting to blank/Google screen issue
+        }
     });
 
     tonConnectUI.onStatusChange(w => { 
@@ -230,22 +216,22 @@
 
     function updateRefUI() {
         if (!userAddress) return;
-        const botUsername = "GoldenGameGlobal_official_bot";
         const cleanUserAddr = getFriendlyAddress(userAddress);
-        const tmeLink = `https://t.me/${botUsername}?startapp=ref_${cleanUserAddr}`;
-        document.getElementById("refLink").innerText = tmeLink;
+        // Website base URL with ?ref= parameter
+        const webRefLink = window.location.origin + window.location.pathname + "?ref=" + cleanUserAddr;
+        document.getElementById("refLink").innerText = webRefLink;
     }
 
     function copyLink() {
         const text = document.getElementById("refLink").innerText;
-        if(text.includes("Please open")) return;
+        if(text.includes("Connect wallet")) return;
         navigator.clipboard.writeText(text);
         const btn = document.getElementById("copyBtn");
         btn.innerHTML = '<i class="fas fa-check"></i> COPIED';
         setTimeout(() => { btn.innerText = "COPY LINK"; }, 2000);
     }
 
-    // Robust Getter Function (Supports Address Parameter for Tact Getters)
+    // Robust Getter Function for Tact Contract Getters
     async function fetchGetter(method) {
         if (!userAddress) return "0";
         try {
